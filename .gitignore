@@ -1,0 +1,11 @@
+nimcache/
+target/
+processed/
+include/
+.vscode/
+*.swp
+*.ndb
+*.log
+nakefile
+
+
