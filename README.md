@@ -31,10 +31,10 @@ The main differences from the C++ api are:
 
 * Some procs have a "m" prefix compared to the c++ functions to avoid name conflicts (e.g. msum)
 
-* Some functions from the c++ api returning skalar values have been replaced be mulitple procs with "as_int", "as_float", "as_complex" suffixes to simplify common use cases 
+* Some functions from the c++ api returning scalar values have been replaced be mulitple procs with "as_int", "as_float", "as_complex" suffixes to simplify common use cases 
 
 
-The values in the documentation in docs have been generated with `nim doc2` are valid for 64bit os systems. 
+The values in the documentation in the docs directory have been generated with `nim doc2` and are valid for 64bit os systems. 
 For the correct values on 32bit os systems please run "nake doc".
 
 ### Known issues
@@ -48,7 +48,7 @@ The wrapper is already well usable but has not been optimized.
 
 The current version is 0.1
 
-All tests have been performed on Arch Linux but with the basic libraries installed all common linux distributions should work - no tests have been performed on other OSes.
+All tests have been performed on Arch Linux but with the basic libraries installed all common linux distributions should work - no tests have been performed on other OS.
 
 ### License
 
