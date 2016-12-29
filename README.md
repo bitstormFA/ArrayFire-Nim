@@ -221,7 +221,7 @@ Negative index values count backwards from the last element (i.e. iend = -1)
 
 ## Backend selection
 
-The wrapper is using the unified backend so that the backend can be changed at runtime
+The wrapper is using the unified backend so that the backend can be changed at runtime. 
 Array constructed on one backend can not be used on a different backend
 
 `get_available_backends` returns a list of backends available. 

@@ -42,7 +42,7 @@ suite "computer_vision":
     while not wnd.close():
       wnd.image(img_color)
       let time = cpuTime()-t0
-      if time > 5:
+      if time > 0.05:
         break
 
     discard wnd.close()
@@ -113,7 +113,7 @@ suite "computer_vision":
     while not wnd2.close():
       wnd2.image(img_color)
       let time = cpuTime()-t0
-      if time > 5:
+      if time > 0.05:
         break
 
     discard wnd2.close()
