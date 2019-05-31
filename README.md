@@ -8,7 +8,8 @@ Compilation requires the C++ backend of nim (compile with cpp option)
 
 The wrapper is using the unified backend making it is possible to switch backends at runtime.
 
-##Please Note
+## Please Note
+
   ArrayFire-Nim is not affiliated with or endorsed by ArrayFire. The ArrayFire literal 
   mark is used under a limited license granted by ArrayFire the trademark holder 
   in the United States and other countries.
