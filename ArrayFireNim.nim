@@ -339,7 +339,7 @@ type
     CUBIC_SPLINE, BICUBIC_SPLINE
 
   BorderType* {.pure, size: sizeof(cint).} = enum
-    PAD_ZERO = 0, PAD_SYM
+    PAD_ZERO = 0, PAD_SYM, PAD_CLAMP_TO_EDGE, PAD_PERIODIC
 
   Connectivity* {.pure, size: sizeof(cint).} = enum
     CONNECTIVITY_4 = 4, CONNECTIVITY_8 = 8
@@ -349,6 +349,21 @@ type
 
   ConvDomain* {.pure, size: sizeof(cint).} = enum
     AUTO, SPATIAL, FREQ
+
+  ConvGradientType* {.pure, size: sizeof(cint).} = enum
+    DEFAULT, FILTER, DATA, BIAS
+
+  FluxFuction* {.pure, size: sizeof(cint).} = enum
+    DEFAULT = 0, QUADRATIC = 1, EXPONENTIAL = 2 
+
+  CannyThreshold* {.pure, size: sizeof(cint).} = enum
+    THRESHOLD_MANUAL = 0, THRESHOLD_AUTO_OTSU = 1 
+
+  DiffusionEq* {.pure, size: sizeof(cint).} = enum
+    DEFAULT = 0, GRAD = 1, MCDE = 2 
+
+  InverseDeconvAlgo* {.pure, size: sizeof(cint).} = enum
+    DEFAULT = 0, IKHONOV = 1
 
   MatchType* {.pure, size: sizeof(cint).} = enum
     SAD = 0, ZSAD, LSAD, SSD, ZSSD, LSSD, NCC, ZNCC, SHD
@@ -365,8 +380,8 @@ type
     TRI_DIAG = 4096, BLOCK_DIAG = 8192
 
   NormType* {.pure, size: sizeof(cint).} = enum
-    NORM_VECTOR_1, NORM_VECTOR_INF, NORM_VECTOR_2, NORM_VECTOR_P, NORM_MATRIX_1,
-    NORM_MATRIX_INF, NORM_MATRIX_2, NORM_MATRIX_L_PQ
+    VECTOR_1, VECTOR_INF, VECTOR_2, VECTOR_P, MATRIX_1,
+    MATRIX_INF, MATRIX_2, MATRIX_L_PQ
 
   ImageFormat* {.pure, size: sizeof(cint).} = enum
     BMP = 0, ICO = 1, JPEG = 2, JNG = 3, PNG = 13, PPM = 14,
@@ -374,10 +389,13 @@ type
     RAW = 34
 
   MomentType* {.pure, size: sizeof(cint).} = enum
-    M00 = 1, M01 = 2, M10 = 4, M11 = 8,
+    M00 = 1, M01 = 2, M10 = 4, M11 = 8, FIRST_ORDER = 15
 
   HomographyType* {.pure, size: sizeof(cint).} = enum
     RANSAC = 0, LMEDS = 1
+
+  TopKFunction* {.pure, size: sizeof(cint).} = enum
+    TOPK_DEFAULT = 0, TOPK_MIN = 1, TOPK_MAX = 2,
 
 type
   Backend* {.size: sizeof(cint), header : "arrayfire.h", importcpp: "af_backend".} = enum
@@ -398,14 +416,12 @@ type
 type
   Colormap* {.pure, size: sizeof(cint).} = enum
     DEFAULT = 0, SPECTRUM = 1, COLORS = 2, RED = 3,
-    MOOD = 4, HEAT = 5, BLUE = 6
+    MOOD = 4, HEAT = 5, BLUE = 6, INFERNO = 7, MAGMA = 8, PLASMA = 9, VIRIDS = 10
 
   MarkerType* {.pure, size: sizeof(cint).} = enum
     NONE = 0, POINT = 1, CIRCLE = 2, SQUARE = 3,
     TRIANGLE = 4, CROSS = 5, PLUS = 6, STAR = 7
 
-
-type
   Storage* {.pure, size: sizeof(cint).} = enum
     DENSE = 0, CSR = 1, CSC = 2, COO = 3
 
@@ -434,14 +450,12 @@ type
 type 
   AF_Array_Handle* = distinct pointer
 
-type
   AFC_Seq* = object
     begin*: cdouble
     until*: cdouble
     step*: cdouble
 
-type
-  IndexOption* = object {.union.}
+  IndexOption* {.union.} = object 
     arr*: Matrix
     aseq*: AFC_Seq
 
@@ -668,7 +682,7 @@ proc host*[T](this: Matrix): ptr T
 proc host*(this: Matrix; `ptr`: pointer) 
   {.noSideEffect, cdecl, importcpp: "host", header : "arrayfire.h".}
 
-proc write*[T](this: var Matrix; `ptr`: ptr T; bytes: csize; src: Source = Source.afHost) 
+proc write*[T](this: var Matrix; `ptr`: ptr T; bytes: csize_t; src: Source = Source.afHost) 
   {.cdecl,importcpp: "write", header : "arrayfire.h".}
 
 proc `type`*(this: Matrix): Dtype 
@@ -683,7 +697,7 @@ proc af_dims*(this: Matrix; dim: cuint): DimT
 proc numdims*(this: Matrix): cuint 
   {.noSideEffect, cdecl, importcpp: "numdims",header : "arrayfire.h".}
 
-proc bytes*(this: Matrix): csize 
+proc bytes*(this: Matrix): csize_t 
   {.noSideEffect, cdecl, importcpp: "bytes", header : "arrayfire.h".}
 
 proc copy*(this: Matrix): Matrix 
@@ -1267,6 +1281,9 @@ proc `mod`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "mod(@)",
 proc `mod`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "mod(@)",
     header : "arrayfire.h".}
 
+proc pad*(matin: Matrix; beginPadding: Dim4, endPadding: Dim4, padFillType: BorderType ): Matrix {.cdecl, importcpp: "pad(@)",
+    header : "arrayfire.h".}
+
 proc abs*(matin : Matrix): Matrix {.cdecl, importcpp: "abs(@)", header : "arrayfire.h".}
 
 proc arg*(matin : Matrix): Matrix {.cdecl, importcpp: "arg(@)", header : "arrayfire.h".}
@@ -1375,6 +1392,8 @@ proc log10*(matin : Matrix): Matrix {.cdecl, importcpp: "log10(@)", header : "ar
 proc log2*(matin : Matrix): Matrix {.cdecl, importcpp: "log2(@)", header : "arrayfire.h".}
 
 proc sqrt*(matin : Matrix): Matrix {.cdecl, importcpp: "sqrt(@)", header : "arrayfire.h".}
+
+proc rsqrt*(matin : Matrix): Matrix {.cdecl, importcpp: "rsqrt(@)", header : "arrayfire.h".}
 
 proc cbrt*(matin : Matrix): Matrix {.cdecl, importcpp: "cbrt(@)", header : "arrayfire.h".}
 
@@ -1594,41 +1613,44 @@ proc getDevice*(): cint
 proc isDoubleAvailable*(device: cint): bool {.cdecl,
     importcpp: "af::isDoubleAvailable(@)", header : "arrayfire.h".}
 
+proc isHalfAvailable*(device: cint): bool {.cdecl,
+    importcpp: "af::isHalfAvailable(@)", header : "arrayfire.h".}
+
 proc setDevice*(device: cint) 
   {.cdecl, importcpp: "af::setDevice(@)", header : "arrayfire.h".}
 
 proc sync*(device: cint = - 1) 
   {.cdecl, importcpp: "af::sync(@)", header : "arrayfire.h".}
 
-proc af_alloc*(elements: csize; `type`: Dtype): pointer 
+proc af_alloc*(elements: csize_t; `type`: Dtype): pointer 
   {.cdecl, importcpp: "af::alloc(@)",header : "arrayfire.h".}
 
-proc af_alloc*[T](elements: csize): ptr T 
+proc af_alloc*[T](elements: csize_t): ptr T 
   {.cdecl, importcpp: "af::alloc(@)", header : "arrayfire.h".}
 
 proc af_free*(`ptr`: pointer) 
   {.cdecl, importcpp: "af::free(@)", header : "arrayfire.h".}
 
-proc pinned*(elements: csize; `type`: Dtype): pointer 
+proc pinned*(elements: csize_t; `type`: Dtype): pointer 
   {.cdecl, importcpp: "af::pinned(@)", header : "arrayfire.h".}
 
-proc pinned*[T](elements: csize): ptr T 
+proc pinned*[T](elements: csize_t): ptr T 
   {.cdecl, importcpp: "af::pinned(@)", header : "arrayfire.h".}
 
 proc freePinned*(`ptr`: pointer) 
   {.cdecl, importcpp: "af::freePinned(@)", header : "arrayfire.h".}
 
-proc allocHost*(elements: csize; `type`: Dtype): pointer 
+proc allocHost*(elements: csize_t; `type`: Dtype): pointer 
   {.cdecl, importcpp: "af::allocHost(@)", header : "arrayfire.h".}
 
-proc allocHost*[T](elements: csize): ptr T 
+proc allocHost*[T](elements: csize_t): ptr T 
   {.cdecl, importcpp: "af::allocHost(@)", header : "arrayfire.h".}
 
 proc freeHost*(`ptr`: pointer) 
   {.cdecl, importcpp: "af::freeHost(@)", header : "arrayfire.h".}
 
-proc deviceMemInfo*(allocBytes: ptr csize; allocBuffers: ptr csize;
-                   lockBytes: ptr csize; lockBuffers: ptr csize) 
+proc deviceMemInfo*(allocBytes: ptr csize_t; allocBuffers: ptr csize_t;
+                   lockBytes: ptr csize_t; lockBuffers: ptr csize_t) 
   {.cdecl, importcpp: "af::deviceMemInfo(@)", header : "arrayfire.h".}
 
 proc printMemInfo*(msg: cstring = nil; deviceId: cint = - 1) 
@@ -1637,16 +1659,16 @@ proc printMemInfo*(msg: cstring = nil; deviceId: cint = - 1)
 proc deviceGC*() 
   {.cdecl, importcpp: "af::deviceGC(@)", header : "arrayfire.h".}
 
-proc setMemStepSize*(size: csize) 
+proc setMemStepSize*(size: csize_t) 
   {.cdecl, importcpp: "af::setMemStepSize(@)", header : "arrayfire.h".}
 
-proc getMemStepSize*(): csize 
+proc getMemStepSize*(): csize_t 
   {.cdecl, importcpp: "af::getMemStepSize(@)", header : "arrayfire.h".}
 
 proc constructfeatures*(): Features 
   {.cdecl, constructor, importcpp: "af::features(@)",header : "arrayfire.h".}
 
-proc constructfeatures*(n: csize): Features 
+proc constructfeatures*(n: csize_t): Features 
   {.cdecl, constructor, importcpp: "af::features(@)", header : "arrayfire.h".}
 
 proc constructfeatures*(f: Features): Features 
@@ -1655,7 +1677,7 @@ proc constructfeatures*(f: Features): Features
 proc destroyfeatures*(this: var Features) 
   {.cdecl, importcpp: "#.~features()", header : "arrayfire.h".}
 
-proc getNumFeatures*(this: Features): csize 
+proc getNumFeatures*(this: Features): csize_t 
   {.noSideEffect, cdecl, importcpp: "getNumFeatures", header : "arrayfire.h".}
 
 proc getX*(this: Features): Matrix 
@@ -1861,8 +1883,25 @@ proc skew*(matin : Matrix; skew0: cfloat; skew1: cfloat; odim0: DimT = 0; odim1:
   {.cdecl, importcpp: "af::skew(@)", header : "arrayfire.h".}
 
 proc bilateral*(matin : Matrix; spatialSigma: cfloat; chromaticSigma: cfloat;
-               isColor: bool = false): Matrix 
+                isColor: bool = false): Matrix 
   {.cdecl, importcpp: "af::bilateral(@)", header : "arrayfire.h".}
+
+proc anisotropicDiffusion*(matin : Matrix; timestep: cfloat; conductance: cfloat; iterations: cuint; 
+                          fftype: FluxFuction = FluxFuction.EXPONENTIAL; diffusionKind: DiffusionEq = DiffusionEq.GRAD): Matrix 
+  {.cdecl, importcpp: "af::anisotropicDiffusion(@)", header : "arrayfire.h".}
+
+proc inverseDeconv*(matin : Matrix; psf: Matrix, gamme: cfloat, algo: InverseDeconvAlgo): Matrix 
+  {.cdecl, importcpp: "af::cainverseDeconvnny(@)", header : "arrayfire.h".}
+
+proc iterativeDeconv*(matin : Matrix; ker: Matrix, iterations: cuint, relaxFactor: cfloat, algo: InverseDeconvAlgo): Matrix 
+  {.cdecl, importcpp: "af::iterativeDeconv(@)", header : "arrayfire.h".}
+
+proc canny*(matin : Matrix; thresholdType: CannyThreshold; lowThresholdRatio: cfloat; highThresholdRatio: cfloat; sobelWindow: cuint, isFast: bool = false;
+            isColor: bool = false): Matrix 
+  {.cdecl, importcpp: "af::canny(@)", header : "arrayfire.h".}
+
+proc confidenceCC*(matin : Matrix; seeds: Matrix, radius: cuint, multiplier: cuint, iter: cint, segmentedValue: cdouble): Matrix 
+  {.cdecl, importcpp: "af::confidenceCC(@)", header : "arrayfire.h".}
 
 proc histogram*(matin : Matrix; nbins: cuint; minval: cdouble; maxval: cdouble): Matrix 
   {.cdecl, importcpp: "af::histogram(@)", header : "arrayfire.h".}
@@ -1998,7 +2037,10 @@ proc solveLU*(a: Matrix; piv: Matrix; b: Matrix; options: MatProp ): Matrix
 proc inverse*(matin : Matrix; options: MatProp ): Matrix 
   {.cdecl, importcpp: "af::inverse(@)", header : "arrayfire.h".}
 
-proc rank*(matin : Matrix; tol: cdouble = 1e-05): cuint 
+proc pinverse*(matin : Matrix; options: MatProp ): Matrix 
+  {.cdecl, importcpp: "af::pinverse(@)", header : "arrayfire.h".}
+
+proc rank*(matin : Matrix; tol: cdouble = 1e-06, options: MatProp = MatProp.NONE): Matrix
   {.cdecl, importcpp: "af::rank(@)", header : "arrayfire.h".}
 
 proc det*(matin : Matrix): cdouble
@@ -2224,6 +2266,10 @@ proc convolve*(colFilter: Matrix; rowFilter: Matrix; signal: Matrix;
               mode: ConvMode = ConvMode.DEFAULT ): Matrix {.cdecl,
     importcpp: "convolve(@)", header : "arrayfire.h".}
 
+proc convolve2GradientNN*(incomming_gradient: Matrix; original_signal: Matrix; original_filter: Matrix; convolved_output: Matrix;
+                          stride: Dim4; padding: Dim4; dilation: Dim4; gradType: ConvGradientType){.cdecl,
+                          importcpp: "convolve(@)", header : "arrayfire.h".}
+
 proc convolve1*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT;
                domain: ConvDomain = ConvDomain.AUTO ): Matrix {.cdecl,
     importcpp: "convolve1(@)", header : "arrayfire.h".}
@@ -2311,6 +2357,9 @@ proc `var`*(matin : Matrix; isbiased: bool = false; dim: DimT = - 1): Matrix {.c
 proc `var`*(matin : Matrix; weights: Matrix; dim: DimT = - 1): Matrix {.cdecl,
     importcpp: "var(@)", header : "arrayfire.h".}
 
+proc topk*(values: Matrix, indices: Matrix, matin: Matrix, k: cint, dim: cint = - 1, order: TopKFunction = TopKFunction.TOPK_MAX) {.cdecl,
+    importcpp: "topk(@)", header : "arrayfire.h".}
+
 proc stdev*(matin : Matrix; dim: DimT ): Matrix {.cdecl, importcpp: "stdev(@)",
     header : "arrayfire.h".}
 
@@ -2368,7 +2417,7 @@ proc toString*(exp: cstring; arr: Matrix; precision: cint = 4; transpose: bool =
 proc exampleFunction*(matin : Matrix; param: SomeenumT): Matrix {.cdecl,
     importcpp: "exampleFunction(@)", header : "arrayfire.h".}
 
-proc getSizeOf*(`type`: Dtype): csize {.cdecl, importcpp: "getSizeOf(@)", header : "arrayfire.h".}
+proc getSizeOf*(`type`: Dtype): csize_t {.cdecl, importcpp: "getSizeOf(@)", header : "arrayfire.h".}
 
 proc fast*(matin : Matrix; thr: cfloat = 20.0; arcLength: cuint = 9; nonMax: bool = true;
           featureRatio: cfloat = 0.05; edge: cuint = 3): Features {.cdecl,
@@ -2591,13 +2640,24 @@ proc msum*(matin: Matrix; dim: cint = -1 ): Matrix
 proc msum*(matin: Matrix; dim: cint; nanval: cdouble): Matrix 
   {.importcpp: "af::sum(@)",header: "arrayfire.h".}
 
+proc sumByKey*(keys_out: Matrix, vals_out: Matrix, keys: Matrix, vals: Matrix, dim: cint = -1 ) 
+  {.importcpp: "sumByKey(@)",header: "arrayfire.h".}
+
 proc product*(matin: Matrix; dim: cint = - 1): Matrix 
   {.importcpp: "af::product(@)",header: "arrayfire.h".}
 
+proc productByKey*(keys_out: Matrix, vals_out : Matrix, keys: Matrix, vals: Matrix, dims: cint = -1) 
+  {.importcpp: "productByKey(@)",header: "arrayfire.h".}  
+
 proc product*(matin: Matrix; dim: cint; nanval: cdouble): Matrix 
   {.importcpp: "af::product(@)", header: "arrayfire.h".}
-
 proc mmin*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::min(@)",
+    header: "arrayfire.h".}
+
+proc maxByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "maxByKey(@)",
+    header: "arrayfire.h".}
+
+proc minByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "minByKey(@)",
     header: "arrayfire.h".}
 
 proc mmax*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::max(@)",
@@ -2606,13 +2666,20 @@ proc mmax*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::max(@)",
 proc allTrue*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::allTrue(@)",
     header: "arrayfire.h".}
 
+proc allTrueByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "allTrueByKey(@)",
+    header: "arrayfire.h".}
+
 proc anyTrue*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::anyTrue(@)",
+    header: "arrayfire.h".}
+
+proc anyTrueByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "anyTrueByKey(@)",
     header: "arrayfire.h".}
 
 proc count*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::count(@)",
     header: "arrayfire.h".}
 
-
+proc countByKey*(keys_out: var Matrix; vals_out: var Matrix; keys: Matrix, vals: Matrix) {.importcpp: "countByKey(@)",
+    header: "arrayfire.h".}
 
 proc af_sum_all(real : ptr[cdouble], imag : ptr[cdouble], carray : AF_Array_Handle) : Err 
     {.importcpp: "af_sum_all(@)",header: "arrayfire.h".}
@@ -2717,6 +2784,12 @@ proc max*[T](val: ptr T; idx: ptr cuint; matin: Matrix)
 proc accum*(matin: Matrix; dim: cint = 0): Matrix 
   {.importcpp: "af::accum(@)",header: "arrayfire.h".}
 
+proc scan*(matin: Matrix; dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): Matrix 
+  {.importcpp: "af::scan(@)",header: "arrayfire.h".}
+
+proc scanByKey*(key: Matrix, matin: Matrix, dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): Matrix 
+  {.importcpp: "af::scanByKey(@)",header: "arrayfire.h".}
+
 proc where*(matin: Matrix): Matrix 
   {.importcpp: "af::where(@)", header: "arrayfire.h".}
 
@@ -2733,9 +2806,9 @@ proc sort*(`out`: var Matrix; indices: var Matrix; matin: Matrix; dim: cuint = 0
           isAscending: bool = true) 
   {.importcpp: "af::sort(@)", header: "arrayfire.h".}
 
-proc sort*(outKeys: var Matrix; outValues: var Matrix; keys: Matrix; values: Matrix;
+proc sortByKeys*(outKeys: var Matrix; outValues: var Matrix; keys: Matrix; values: Matrix;
           dim: cuint = 0; isAscending: bool = true) 
-  {.importcpp: "af::sort(@)",header: "arrayfire.h".}
+  {.importcpp: "sortByKeys(@)",header: "arrayfire.h".}
 
 proc setUnique*(matin: Matrix; isSorted: bool = false): Matrix 
   {.importcpp: "af::setUnique(@)", header: "arrayfire.h".}
@@ -2932,65 +3005,65 @@ proc `$`*(m: AF_Seq) : string =
   let vals = m.getContent
   "AF_Seq[from: $1, until $2, step: $3]"%[$vals[0],$vals[1],$vals[2]]
 
-proc `[]`*[I: int | int64 | AF_Seq | Matrix | Matrix_View| Index,  
+proc `[]`*[I: int | int64 | AF_Seq | Matrix | Matrix_View | Index,  
            M: Matrix | Matrix_View](m: M, i: I) : Matrix_View 
   {.importcpp: "#(#)", header: "arrayfire.h".}
 
-proc `[]`*[I1: int| int64 | AF_Seq | Matrix | Matrix_View| Index, 
-          I2: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
+proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index, 
+          I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
           M: Matrix | Matrix_View](m: M, i1: I1, i2 : I2) : Matrix_View 
   {.importcpp: "#(@)", header: "arrayfire.h".}
 
-proc `[]`*[I1: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
-           I2: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
-           I3: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
+proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
+           I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
+           I3: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
            M: Matrix | Matrix_View
            ](m: M, idx1: I1, idx2 : I2, idx3 : I3) : Matrix_View =
   {.importcpp: "#(@)", header: "arrayfire.h".}
 
 
-proc `[]`*[I1: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
-           I2: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
-           I3: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
-           I4: int| int64 | AF_Seq | Matrix | Matrix_View| Index,
+proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
+           I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
+           I3: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
+           I4: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
            M: Matrix | Matrix_View
            ](m: M, idx1: I1, idx2 : I2, idx3 : I3, idx4 : I4 ) : Matrix_View =
   {.importcpp: "#(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View| Matrix_View,
+              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
             M: Matrix | Matrix_View          
   ](this: var M; idx1: I1, val: V) 
   {.importcpp: "#(#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int| int64 | AF_Seq | Index | Matrix| Matrix_View, 
-            I2: int| int64 | AF_Seq | Index | Matrix| Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View| Matrix_View,
+              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
             M: Matrix | Matrix_View
   ](this: var M; idx1: I1, idx2 : I2, val: V) 
   {.importcpp: "#(#,#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I2: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I3: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I3: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View| Matrix_View,
+              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
             M: Matrix | Matrix_View
   ](this: var M; idx1: I1, idx2 : I2, idx3 : I3, val: V) 
   {.importcpp: "#(#,#,#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I2: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I3: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I4: int| int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I3: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+            I4: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View| Matrix_View,
+              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
             M: Matrix | Matrix_View
   ](this: var M; idx1: I1, idx2 : I2, idx3 : I3, idx4 : I4, val: V) 
   {.importcpp: "#(#,#,#,#).operator=(@)", header: "arrayfire.h".}
