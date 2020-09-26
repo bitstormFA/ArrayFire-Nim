@@ -1,7 +1,5 @@
 import unittest
-import strutils
 import ArrayFireNim
-import os
 import times
 
 
@@ -53,8 +51,10 @@ suite "graphics":
         scale = 2'f32
 
       let time = cpuTime() - t0
-      if time > 2:
+      if time > 0.3:
         break
+  
+    discard myWindow.close()
 
 
 

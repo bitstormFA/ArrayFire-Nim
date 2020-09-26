@@ -10,8 +10,12 @@ suite "basic test":
     echo "available backends $1" % $backends
     for b in backends:
       echo "testing backend $1" % $b
-      #setBackend(b)  #check why this results in seg violation
-      #info()
+      setBackend(b)  #check why this results in seg violation
+      info()
+      var a = matrix(3,3, 1..9,s32)
+      check(a.dtype == s32)
+      check(getActiveBackend() == b)
+      echo a
 
   test "matrix construction without matrix type":
     let m1d = matrix(9,@[1'i32,2'i32,3'i32])
@@ -19,7 +23,9 @@ suite "basic test":
     let m2d = matrix(1,1,[1])
     check(m2d.dtype == s32)
     let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8])
+    check(m3d.dtype == s32)
     let m4d = matrix(dim4(2,2,2,2),1..16)
+    check(m4d.dtype == s32)
 
   test "matrix construction with specified matrix type":
     let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9],f64)

@@ -2878,31 +2878,6 @@ converter toInt*(i: cint) : int = int(i)
 
 converter toInt*(i: clong) : int = int(i)
 
-proc get_dtype[T](data: openarray[T]) : DType = 
-  result = DType.f64
-  when (T is float64):
-    result = DType.f64
-  elif (T is float32):
-    result = DType.f32
-  elif (T is int16):
-    result = DType.s16
-  elif (T is int32): 
-    result = DType.s32
-  elif (T is int64):
-    result = DType.s64 
-  elif (T is int8):
-    result = DType.s8
-  elif (T is uint16):
-    result = DType.u16
-  elif (T is uint32): 
-    result = DType.u32
-  elif (T is uint64):
-    result = DType.u64 
-  elif (T is uint8):
-    result = DType.u8
-
-
-
 proc copy_array_to_c[T](data:openarray[T]) : pointer =  
   doAssert len(data) > 0 
   result = alloc0(data.len*sizeof(T))   

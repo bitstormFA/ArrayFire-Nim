@@ -1,7 +1,7 @@
 import nake
 import os
 
-const testDir="test"
+const testDir="tests"
 const targetDir="target"
 
 
@@ -19,11 +19,6 @@ task defaultTask, "Run Tests":
     echo "running test $1"%name
     direShell(nimExe,"cpp","-r","--lineDir:on","--verbosity:0","--colors:on","--hints:off",
       "--debugger:native","--debuginfo","--out=$1$2$3"%[targetDir,$DirSep,name],nakeFile)
-
-
-task "transform","Transform header":
-  direShell(nimExe,"c","-r","--lineDir:on","--verbosity:0","--colors:on","--hints:off",
-      "--debuginfo","--out=target/process scripts/process.nim")
 
 task "doc", "generate documentation":
   direShell(nimExe,"doc2","--docSeeSrcUrl:txt","--out=docs/ArrayFireNim.html","ArrayFireNim.nim")
