@@ -1,7 +1,6 @@
 import unittest
 import strutils
 import ArrayFireNim
-import os
 
 
 suite "getting started":
@@ -117,7 +116,7 @@ suite "getting started":
     let site= matrix(n,siteI)
     let measurement = matrix(n,measurementI)
 
-    var rainfall = constant(0,sites)    
+    var rainfall = constant(0,sites, ty=DType.s32)    
 
     gfor(s, sites):
       rainfall[s] = msum(measurement * ( site == s)  )
@@ -136,7 +135,7 @@ suite "getting started":
     echo "number of days with rain: " & $rainy_days
     check(rainy_days == 7)
 
-    var per_day = constant(0, days)
+    var per_day = constant(0, days, DType.f32)
 
     gfor(d, days):
       per_day[d] = msum(measurement * (day == d))

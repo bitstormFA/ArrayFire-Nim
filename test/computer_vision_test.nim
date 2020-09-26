@@ -75,7 +75,7 @@ suite "computer_vision":
 
     var response = idet - 0.04 * (itr * itr)
 
-    var mask = constant(1,3,3)
+    var mask = constant(1, 3, 3, ty=f32)
 
     var max_resp = dilate(response, mask)
 

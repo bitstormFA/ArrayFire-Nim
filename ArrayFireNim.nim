@@ -5,13 +5,10 @@ import typetraits
 
 when defined(Windows): #check this
   {.passC: "-std=c++11".}
-  {.passL: "-laf"}
+  {.passL: "-lGL -laf"}
 elif defined(Linux):
   {.passC: "-std=c++11".}
-  {.passL: "-laf"}
-elif defined(MacOsX):
-  {.passC: "-std=c++11".}
-  {.passL: "-laf"}
+  {.passL: "-lGL -laf"}
 
 
 when sizeof(int) == 8:
@@ -557,13 +554,13 @@ proc dim4s*[T: int | DimT](dims : openarray[T]) : Dim4 =
   var all_dims = [DimT(1),DimT(1),DimT(1),DimT(1)]
   let count = min(4,len(dims))  
   for i in 0..<count:
-    all_dims[i]=dims[i]
+    all_dims[i]=Dimt(dims[i])
   constructdim4(all_dims[0], all_dims[1], all_dims[2], all_dims[3])
 
 proc dim4*[T: int | DimT](dims: varargs[T]) : Dim4 =
   dim4s(dims)
 
-converter toDimT*(i: int) : DimT = DimT(i) ##automatically convert a single int to a dim4
+converter toDimT*(i: int) : DimT = DimT(i) ##automatically convert a single int to a DimTS
 
 proc `[]`*(d : Dim4, i:int) : int =
   ##Index access to the dim4 dimensions
@@ -650,11 +647,11 @@ proc matrix*[T](dim0: DimT; dim1: DimT; pointer: ptr T; src: Source = Source.afH
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
 proc matrix*[T](dim0: DimT; dim1: DimT; dim2: DimT; pointer: ptr T;
-                       src: Source = Source.afHost): Matrix 
+                src: Source = Source.afHost): Matrix 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
 proc matrix*[T](dim0: DimT; dim1: DimT; dim2: DimT; dim3: DimT; pointer: ptr T;
-                       src: Source = Source.afHost): Matrix 
+                src: Source = Source.afHost): Matrix 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
 proc matrix*[T](dims: Dim4; pointer: ptr T; src: Source = Source.afHost): Matrix 
@@ -663,8 +660,7 @@ proc matrix*[T](dims: Dim4; pointer: ptr T; src: Source = Source.afHost): Matrix
 proc matrix*(input: Matrix; dims: Dim4): Matrix 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(input: Matrix; dim0: DimT; dim1: DimT = 1; dim2: DimT = 1;
-                    dim3: DimT = 1): Matrix 
+proc matrix*(input: Matrix; dim0: DimT; dim1: DimT = 1; dim2: DimT = 1; dim3: DimT = 1): Matrix 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
 proc get*(this: var Matrix): AF_Array_Handle 
@@ -1495,16 +1491,13 @@ proc constant*[T](val: T; d0: DimT): Matrix
 proc constant*[T](val: T; d0: DimT; d1: DimT; ty: Dtype): Matrix 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT): Matrix 
-  {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
-
 proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; ty: Dtype): Matrix 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
 proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT): Matrix 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT;ty: Dtype ): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT;ty: Dtype = f64 ): Matrix 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
 proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT): Matrix 
@@ -2883,16 +2876,50 @@ converter toCuint*(d: DimT) : cuint = cuint(d)
 
 converter toInt*(i: cint) : int = int(i)
 
+converter toInt*(i: clong) : int = int(i)
+
+proc get_dtype[T](data: openarray[T]) : DType = 
+  result = DType.f64
+  when (T is float64):
+    result = DType.f64
+  elif (T is float32):
+    result = DType.f32
+  elif (T is int16):
+    result = DType.s16
+  elif (T is int32): 
+    result = DType.s32
+  elif (T is int64):
+    result = DType.s64 
+  elif (T is int8):
+    result = DType.s8
+  elif (T is uint16):
+    result = DType.u16
+  elif (T is uint32): 
+    result = DType.u32
+  elif (T is uint64):
+    result = DType.u64 
+  elif (T is uint8):
+    result = DType.u8
+
+
 
 proc copy_array_to_c[T](data:openarray[T]) : pointer =  
-  result = alloc0(data.len*sizeof(T))
+  doAssert len(data) > 0 
+  result = alloc0(data.len*sizeof(T))   
   for i in 0..<data.len:
     var target_ptr=cast[ptr T](cast[int](result) + (i * sizeof(T)))
     target_ptr[]=data[i]
 
 proc matrix*[T](dims : Dim4, data : openarray[T]) : Matrix =
-  let cdata = copy_array_to_c(data)
-  result = matrix[T](dims,cast[ptr T](cdata))
+  when (T is int): 
+    var cc = newSeq[int32]()
+    for i in data: 
+      cc.add(int32(i))
+    let cdata = copy_array_to_c(cc)
+    result = matrix[int32](dims,cast[ptr int32](cdata))
+  else:  
+    let cdata = copy_array_to_c(data)
+    result = matrix[T](dims,cast[ptr T](cdata))
   dealloc(cdata)
 
 proc matrix*[T](dims : Dim4, data : openarray[T], matrix_type : DType) : Matrix =
@@ -2930,8 +2957,15 @@ proc matrix*[T](dims : Dim4, slice : Slice[T]) : Matrix =
   var data: seq[int] = @[]
   for i in slice.a..slice.b:
     data.add(i)
-  let cdata = copy_array_to_c(data)
-  result = matrix[T](dims,cast[ptr T](cdata))
+  when(T is int): 
+    var cc = newSeq[int32]()
+    for i in data: 
+      cc.add(int32(i))
+    let cdata = copy_array_to_c(cc)
+    result = matrix[int32](dims,cast[ptr int32](cdata), src=Source.afHost)
+  else:
+    let cdata = copy_array_to_c(data)
+    result = matrix[T](dims,cast[ptr T](cdata), src=Source.afHost)
   dealloc(cdata)
 
 

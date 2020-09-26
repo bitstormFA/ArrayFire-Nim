@@ -14,9 +14,10 @@ suite "basic test":
       #info()
 
   test "matrix construction without matrix type":
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9])
-    check(m1d.dtype == sysint)
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9])
+    let m1d = matrix(9,@[1'i32,2'i32,3'i32])
+    check(m1d.dtype == s32)
+    let m2d = matrix(1,1,[1])
+    check(m2d.dtype == s32)
     let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8])
     let m4d = matrix(dim4(2,2,2,2),1..16)
 
@@ -36,8 +37,8 @@ suite "basic test":
     check(m0.len == 9)
     check(m0.to_seq(int)  == @[0,0,0,0,0,0,0,0,0] )
 
-    let m1 = constant(1,2,2)
-    check(m1.dtype == sysint)
+    let m1 = constant(1,2,2, u64)
+    check(m1.dtype == DType.u64)
     check(m1.len == 4)
     check(m1.to_seq(int)  == @[1,1,1,1] )
 
