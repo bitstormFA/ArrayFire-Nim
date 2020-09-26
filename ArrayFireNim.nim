@@ -9,7 +9,9 @@ when defined(Windows): #check this
 elif defined(Linux):
   {.passC: "-std=c++11".}
   {.passL: "-lGL -laf"}
-
+elif defined(MacOsX):
+  {.passC: "-std=c++11".}
+  {.passL: "-laf"}
 
 when sizeof(int) == 8:
   type DimT* = clonglong
