@@ -5,7 +5,7 @@ license     = "BSD"
 
 # Dependencies
 
-requires "nim >= 1.2.6"
+requires "nim >= 1.2.0"
 
 when defined(nimdistros):
     import distros
