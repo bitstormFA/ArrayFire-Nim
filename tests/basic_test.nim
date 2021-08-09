@@ -12,29 +12,29 @@ suite "basic test":
       echo "testing backend $1" % $b
       setBackend(b)  #check why this results in seg violation
       info()
-      var a = matrix(3,3, 1..9,s32)
+      var a = afa(3,3, 1..9,s32)
       check(a.dtype == s32)
       check(getActiveBackend() == b)
       echo a
 
   test "matrix construction without matrix type":
-    let m1d = matrix(9,@[1'i32,2'i32,3'i32])
+    let m1d = afa(9,@[1'i32,2'i32,3'i32])
     check(m1d.dtype == s32)
-    let m2d = matrix(1,1,[1])
+    let m2d = afa(1,1,[1])
     check(m2d.dtype == s32)
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8])
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8])
     check(m3d.dtype == s32)
-    let m4d = matrix(dim4(2,2,2,2),1..16)
+    let m4d = afa(dim4(2,2,2,2),1..16)
     check(m4d.dtype == s32)
 
   test "matrix construction with specified matrix type":
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9],f64)
+    let m1d = afa(9,@[1,2,3,4,5,6,7,8,9],f64)
     check(m1d.dtype == f64)
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9],f32)
+    let m2d = afa(3,3,@[1,2,3,4,5,6,7,8,9],f32)
     check(m2d.dtype == f32)
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8],u64)
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8],u64)
     check(m3d.dtype == u64)
-    let m4d = matrix(2,2,2,2,1..16,c64)
+    let m4d = afa(2,2,2,2,1..16,c64)
     check(m4d.dtype == c64)
 
   test "matrix from constant":
@@ -68,7 +68,7 @@ suite "basic test":
     # 1 4 7
     # 2 5 8 
     # 3 6 9
-    var a = matrix(3,3, 1..9,s32)
+    var a = afa(3,3, 1..9,s32)
 
     #first element
     check(a[0].first_as(int) == 1 )

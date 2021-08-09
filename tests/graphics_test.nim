@@ -23,7 +23,7 @@ suite "graphics":
     myWindow[0,0].setAxesLimits(MINIMUM,MAXIMUM,MINIMUM,MAXIMUM)
     myWindow[0,1].setAxesLimits(MINIMUM,MAXIMUM,MINIMUM,MAXIMUM)
 
-    var dataRange : Matrix = mseq(MINIMUM,MAXIMUM,STEP)
+    var dataRange : AFArray = mseq(MINIMUM,MAXIMUM,STEP)
 
     var x = tile(dataRange, 1, dataRange.dims(0))
     var y = tile(dataRange.T, dataRange.dims(0), 1)

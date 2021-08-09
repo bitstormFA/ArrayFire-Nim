@@ -34,7 +34,7 @@ ArrayFireNim
 
 ArrayFireNim is a `Nim<http://www.nim-lang.org>`_ wrapper for `Arrayfire<https://github.com/arrayfire/arrayfire>`_.
 
-It enables very fast matrix operations on different backends (CPU, OpenCL, CUDA) 
+It enables very fast AFArray operations on different backends (CPU, OpenCL, CUDA) 
 
 Compilation requires the C++ backend of Nim (compile with cpp option)
 
@@ -47,8 +47,8 @@ The wrapper has been generated with `c2nim<https://github.com/nim-lang/c2nim>`_ 
 modified to avoid name conflicts and to follow the naming conventions of Nim
 
 The main differences from the C++ api are:
-* ``array`` has been renamed to ``Matrix`` to avoid conflicts with the Nim ``array`` type
-* ``array_proxy`` has been renamed to ``Matrix_View``
+* ``array`` has been renamed to ``AFArray`` to avoid conflicts with the Nim ``array`` type
+* ``array_proxy`` has been renamed to ``AFArray_View``
 * ``seq`` has been renamed to AF_Seq to avoid conflicts with the nim ``seq`` type
 * ``DimT`` is used for dimension types and set to clonglong on 64bit os or cint on 32bit os
 * All types names are upper case
@@ -63,8 +63,8 @@ For the correct values on 32bit os systems please run "nake doc".
 Types
 -----------
 
-The Nim type of a Matrix is not generic - it does not depend on the type of the elements. 
-The type of the matrix elements can be checked with the ``dtype`` proc.
+The Nim type of a AFArray is not generic - it does not depend on the type of the elements. 
+The type of the AFArray elements can be checked with the ``dtype`` proc.
 
 The ``DType`` enum contains all possible types.
 
@@ -76,86 +76,86 @@ To simplify cross platform application development two special values are define
 
 
 
-Matrix construction 
+AFArray construction 
 --------------------
 
-A Matrix can be constructed from an openarray, a slice, a matrix, a sequence or a constant value.
-The dimensions of the matrix can be defined vararg of integers (max 4)
+A AFArray can be constructed from an openarray, a slice, a AFArray, a sequence or a constant value.
+The dimensions of the AFArray can be defined vararg of integers (max 4)
 or as a Dim4 object.
-If the element type of the matrix is not defined, the Nim type of the input (e.g. openarray)
+If the element type of the AFArray is not defined, the Nim type of the input (e.g. openarray)
 will be used. On 64bit os systems literal int values will be translated to signed 64 float to float 64.
 
-Construction of a 1,2,3,4-D matrix from a sequence or slice without explicit type definition
+Construction of a 1,2,3,4-D AFArray from a sequence or slice without explicit type definition
 
 .. code-block:: nim
-    # Matrix from a sequence, matrix type is int which maps to s64 (or s32 on 32 bit os)
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9])
+    # AFArray from a sequence, AFArray type is int which maps to s64 (or s32 on 32 bit os)
+    let m1d = afa(9,@[1,2,3,4,5,6,7,8,9])
     check(m1d.dtype == sysint)
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9])
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8])
+    let m2d = afa(3,3,@[1,2,3,4,5,6,7,8,9])
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8])
 
     let mydims=dim4(2,2,2,2)
-    let m4d = matrix(mydims,1..16)                 #use a Dim4 to specify dimensions
+    let m4d = afa(mydims,1..16)                 #use a Dim4 to specify dimensions
 
 
-Same with explicit matrix type
+Same with explicit AFArray type
 
 .. code-block:: nim
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9],f64)    #float64 matrix
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9],f32)  #float32 matrix
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8],u64)  #usigned int 64 matrix
-    let m4d = matrix(2,2,2,2,1..16,c64)             #complex64 matrix
+    let m1d = afa(9,@[1,2,3,4,5,6,7,8,9],f64)    #float64 AFArray
+    let m2d = afa(3,3,@[1,2,3,4,5,6,7,8,9],f32)  #float32 AFArray
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8],u64)  #usigned int 64 AFArray
+    let m4d = afa(2,2,2,2,1..16,c64)             #complex64 AFArray
 
 
 Construction from a constant value:
 
 .. code-block:: nim
-    #3x3 Matrix with all elements 0, type f64 (float64)
+    #3x3 AFArray with all elements 0, type f64 (float64)
     let m0 = constant(0,3,3,f64)
 
-    #2x2 Matrix with all elements 1, type taken from literal(int) -> s64 on 64bit os else s32    
+    #2x2 AFArray with all elements 1, type taken from literal(int) -> s64 on 64bit os else s32    
     let m1 = constant(1,2,2)
 
 
 Construction from random values:
 
 .. code-block:: nim
-    #3x3 Matrix with elements taken from a uniform distribution of type f64
+    #3x3 AFArray with elements taken from a uniform distribution of type f64
     let m0 = randu(3,3,f64)
-    #2x2 Matrix with elements taken from a normal distribution of type f32 (default)
+    #2x2 AFArray with elements taken from a normal distribution of type f32 (default)
     let m1 = randn(2,2)
 
 
 
-Matrix properties
+AFArray properties
 -----------------
 
 ``len``
-  Number of elements in a matrix
+  Number of elements in a AFArray
 
 ``dtype``
-  Type of the matrix elements
+  Type of the AFArray elements
 
 ``to_seq(typedesc)``
-  Get all elements of a matrix. 
+  Get all elements of a AFArray. 
   This proc takes a typedesc to define the target type, see the example below
 
 ``first_as(typedesc)``
-  Get the first element of a matrix
+  Get the first element of a AFArray
   This proc takes a typedesc to define the target type, see the example below
 
 ``dims``
-  Get a Dim4 object containing the matrix dimensions
+  Get a Dim4 object containing the AFArray dimensions
 
 ``ndims`` 
-  Get the number of dimentsions of a matrix
+  Get the number of dimentsions of a AFArray
 
 
 
 
 .. code-block:: nim
 
-    #3x3 Matrix with Complex64 elements, all set (10,0i)
+    #3x3 AFArray with Complex64 elements, all set (10,0i)
     let m0 = constant(10,3,3,c64) 
 
     #dtype c64 
@@ -177,22 +177,22 @@ Matrix properties
     check(m0.first_as(float) == 10.0)
 
 
-Matrix indexing
+AFArray indexing
 ---------------
 
-Matrix indexing generates "views" of a matrix based on selection criteria.
-A ``Matrix_View`` can be assigned values and be used like a matrix enabling
+AFArray indexing generates "views" of a AFArray based on selection criteria.
+A ``AFArray_View`` can be assigned values and be used like a AFArray enabling
 very concise constructs.
 The special constants ``span`` and ``iend`` are used to denote all elements / the last element
 Negative index values count backwards from the last element (i.e. iend = -1)
 See the ``[]`` procs for all details.
 
 .. code-block:: nim
-    #construct 3x3 Matrix with int32 values
+    #construct 3x3 AFArray with int32 values
     # 1 4 7
     # 2 5 8 
     # 3 6 9
-    var a = matrix(3,3, 1..9,s32)
+    var a = afa(3,3, 1..9,s32)
     #first element
     check(a[0].first_as(int) == 1 )
 
@@ -264,9 +264,9 @@ Iterations are performed in parallel by tiling the input.
     let siteI = @[2, 3, 0, 1, 1, 2, 0, 1, 2, 1]
     let measurementI = @[9, 5, 6, 3, 3, 8, 2, 6, 5, 10]
 
-    let day = matrix(n,dayI)
-    let site= matrix(n,siteI)
-    let measurement = matrix(n,measurementI)
+    let day = AFArray(n,dayI)
+    let site= AFArray(n,siteI)
+    let measurement = AFArray(n,measurementI)
 
     var rainfall = constant(0,sites)    
 
@@ -379,8 +379,8 @@ type
     TRI_DIAG = 4096, BLOCK_DIAG = 8192
 
   NormType* {.pure, size: sizeof(cint).} = enum
-    VECTOR_1, VECTOR_INF, VECTOR_2, VECTOR_P, MATRIX_1,
-    MATRIX_INF, MATRIX_2, MATRIX_L_PQ
+    VECTOR_1, VECTOR_INF, VECTOR_2, VECTOR_P, AFArray_1,
+    AFArray_INF, AFArray_2, AFArray_L_PQ
 
   ImageFormat* {.pure, size: sizeof(cint).} = enum
     BMP = 0, ICO = 1, JPEG = 2, JNG = 3, PNG = 13, PPM = 14,
@@ -434,8 +434,8 @@ type
   Trans* = MatProp
 
 type
-  Matrix* {.final, header : "arrayfire.h", importcpp: "af::array".} = object
-  Matrix_View* {.final, header : "arrayfire.h", importcpp: "af::array::array_proxy".} = object
+  AFArray* {.final, header : "arrayfire.h", importcpp: "af::array".} = object
+  AFArray_View* {.final, header : "arrayfire.h", importcpp: "af::array::array_proxy".} = object
   Dim4* {.final, header : "arrayfire.h", importcpp: "af::dim4".} = object
   RandomEngine* {.final, header : "arrayfire.h", importcpp: "af::randomEngine".} = object
   AF_Seq* {.final, header : "arrayfire.h", importcpp: "af::seq".} = object
@@ -455,7 +455,7 @@ type
     step*: cdouble
 
   IndexOption* {.union.} = object 
-    arr*: Matrix
+    arr*: AFArray
     aseq*: AFC_Seq
 
   IndexT* = object
@@ -475,7 +475,7 @@ type
 
 
 type
-  BatchFuncT* = proc (lhs: Matrix; rhs: Matrix): Matrix {.cdecl.}
+  BatchFuncT* = proc (lhs: AFArray; rhs: AFArray): AFArray {.cdecl.}
 
 type
   Cell* = object
@@ -615,797 +615,797 @@ converter toUInt16*[T: Complex32 | Complex64](c : T) : uint16 = uint16(c.real)
 converter toUInt32*[T: Complex32 | Complex64](c : T) : uint32 = uint32(c.real)
 converter toUInt64*[T: Complex32 | Complex64](c : T) : uint64 = uint64(c.real)
 
-proc set*(this: var Matrix; tmp: AF_Array_Handle) 
+proc set*(this: var AFArray; tmp: AF_Array_Handle) 
   {.cdecl, importcpp: "af::set", header : "arrayfire.h".}
 
-proc matrix*(): Matrix 
+proc afa*(): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)",header : "arrayfire.h".}
 
-proc matrix*(handle: AF_Array_Handle): Matrix 
+proc afa*(handle: AF_Array_Handle): AFArray 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(matin : Matrix): Matrix 
+proc afa*(matin : AFArray): AFArray 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(dim0: DimT; ty: Dtype = f32): Matrix 
+proc afa*(dim0: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(dim0: DimT; dim1: DimT; ty: Dtype = f32): Matrix 
+proc afa*(dim0: DimT; dim1: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(dim0: DimT; dim1: DimT; dim2: DimT; ty: Dtype = f32): Matrix 
+proc afa*(dim0: DimT; dim1: DimT; dim2: DimT; ty: Dtype = f32): AFArray 
   {.cdecl,constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(dim0: DimT; dim1: DimT; dim2: DimT; dim3: DimT; ty: Dtype = f32): Matrix 
+proc afa*(dim0: DimT; dim1: DimT; dim2: DimT; dim3: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(dims: Dim4; ty: Dtype = f32): Matrix 
+proc afa*(dims: Dim4; ty: Dtype = f32): AFArray 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*[T](dim0: DimT; pointer: ptr T; src: Source = Source.afHost): Matrix 
+proc afa*[T](dim0: DimT; pointer: ptr T; src: Source = Source.afHost): AFArray 
   {.cdecl,constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*[T](dim0: DimT; dim1: DimT; pointer: ptr T; src: Source = Source.afHost): Matrix 
+proc afa*[T](dim0: DimT; dim1: DimT; pointer: ptr T; src: Source = Source.afHost): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*[T](dim0: DimT; dim1: DimT; dim2: DimT; pointer: ptr T;
-                src: Source = Source.afHost): Matrix 
+proc afa*[T](dim0: DimT; dim1: DimT; dim2: DimT; pointer: ptr T;
+                src: Source = Source.afHost): AFArray 
   {.cdecl, constructor,importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*[T](dim0: DimT; dim1: DimT; dim2: DimT; dim3: DimT; pointer: ptr T;
-                src: Source = Source.afHost): Matrix 
+proc afa*[T](dim0: DimT; dim1: DimT; dim2: DimT; dim3: DimT; pointer: ptr T;
+                src: Source = Source.afHost): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*[T](dims: Dim4; pointer: ptr T; src: Source = Source.afHost): Matrix 
+proc afa*[T](dims: Dim4; pointer: ptr T; src: Source = Source.afHost): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(input: Matrix; dims: Dim4): Matrix 
+proc afa*(input: AFArray; dims: Dim4): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc matrix*(input: Matrix; dim0: DimT; dim1: DimT = 1; dim2: DimT = 1; dim3: DimT = 1): Matrix 
+proc afa*(input: AFArray; dim0: DimT; dim1: DimT = 1; dim2: DimT = 1; dim3: DimT = 1): AFArray 
   {.cdecl, constructor, importcpp: "af::array(@)", header : "arrayfire.h".}
 
-proc get*(this: var Matrix): AF_Array_Handle 
+proc get*(this: var AFArray): AF_Array_Handle 
   {.cdecl, importcpp: "get", header : "arrayfire.h".}
 
-proc get*(this: Matrix): AF_Array_Handle 
+proc get*(this: AFArray): AF_Array_Handle 
   {.noSideEffect, cdecl, importcpp: "get", header : "arrayfire.h".}
 
-proc elements*(this: Matrix): DimT 
+proc elements*(this: AFArray): DimT 
   {.noSideEffect, cdecl, importcpp: "elements",header : "arrayfire.h".}
 
-proc host*[T](this: Matrix): ptr T 
+proc host*[T](this: AFArray): ptr T 
   {.noSideEffect, cdecl, importcpp: "host", header : "arrayfire.h".}
 
-proc host*(this: Matrix; `ptr`: pointer) 
+proc host*(this: AFArray; `ptr`: pointer) 
   {.noSideEffect, cdecl, importcpp: "host", header : "arrayfire.h".}
 
-proc write*[T](this: var Matrix; `ptr`: ptr T; bytes: csize_t; src: Source = Source.afHost) 
+proc write*[T](this: var AFArray; `ptr`: ptr T; bytes: csize_t; src: Source = Source.afHost) 
   {.cdecl,importcpp: "write", header : "arrayfire.h".}
 
-proc `type`*(this: Matrix): Dtype 
+proc `type`*(this: AFArray): Dtype 
   {.noSideEffect, cdecl, importcpp: "type", header : "arrayfire.h".}
 
-proc dtype*(this: Matrix): Dtype 
+proc dtype*(this: AFArray): Dtype 
   {.noSideEffect, cdecl, importcpp: "type",header : "arrayfire.h".}
 
-proc af_dims*(this: Matrix; dim: cuint): DimT 
+proc af_dims*(this: AFArray; dim: cuint): DimT 
   {.noSideEffect, cdecl, importcpp: "dims",header : "arrayfire.h".}
 
-proc numdims*(this: Matrix): cuint 
+proc numdims*(this: AFArray): cuint 
   {.noSideEffect, cdecl, importcpp: "numdims",header : "arrayfire.h".}
 
-proc bytes*(this: Matrix): csize_t 
+proc bytes*(this: AFArray): csize_t 
   {.noSideEffect, cdecl, importcpp: "bytes", header : "arrayfire.h".}
 
-proc copy*(this: Matrix): Matrix 
+proc copy*(this: AFArray): AFArray 
   {.noSideEffect, cdecl, importcpp: "copy", header : "arrayfire.h".}
 
-proc isempty*(this: Matrix): bool 
+proc isempty*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isempty",header : "arrayfire.h".}
 
-proc isscalar*(this: Matrix): bool 
+proc isscalar*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isscalar",header : "arrayfire.h".}
 
-proc isvector*(this: Matrix): bool 
+proc isvector*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isvector",header : "arrayfire.h".}
 
-proc isrow*(this: Matrix): bool 
+proc isrow*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isrow", header : "arrayfire.h".}
 
-proc iscolumn*(this: Matrix): bool 
+proc iscolumn*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "iscolumn",header : "arrayfire.h".}
 
-proc iscomplex*(this: Matrix): bool 
+proc iscomplex*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "iscomplex",header : "arrayfire.h".}
 
-proc isreal*(this: Matrix): bool 
+proc isreal*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isreal",header : "arrayfire.h".}
 
-proc isdouble*(this: Matrix): bool 
+proc isdouble*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isdouble",header : "arrayfire.h".}
 
-proc issingle*(this: Matrix): bool 
+proc issingle*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "issingle",header : "arrayfire.h".}
 
-proc isrealfloating*(this: Matrix): bool 
+proc isrealfloating*(this: AFArray): bool 
   {.noSideEffect, cdecl,importcpp: "isrealfloating", header : "arrayfire.h".}
 
-proc isfloating*(this: Matrix): bool 
+proc isfloating*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isfloating",header : "arrayfire.h".}
 
-proc isinteger*(this: Matrix): bool 
+proc isinteger*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isinteger",header : "arrayfire.h".}
 
-proc isbool*(this: Matrix): bool 
+proc isbool*(this: AFArray): bool 
   {.noSideEffect, cdecl, importcpp: "isbool",header : "arrayfire.h".}
 
-proc eval*(this: Matrix) 
+proc eval*(this: AFArray) 
   {.noSideEffect, cdecl, importcpp: "eval", header : "arrayfire.h".}
 
-proc scalar*[T](this: Matrix): T 
+proc scalar*[T](this: AFArray): T 
   {.noSideEffect, cdecl, importcpp: "#.scalar<'*0>()", header : "arrayfire.h".}
 
-proc scalar_r*(this: Matrix): cdouble 
+proc scalar_r*(this: AFArray): cdouble 
   {.noSideEffect, cdecl, importcpp: "#.scalar<double>()", header : "arrayfire.h".}
 
-proc device*[T](this: Matrix): ptr T 
+proc device*[T](this: AFArray): ptr T 
   {.noSideEffect, cdecl, importcpp: "device", header : "arrayfire.h".}
 
-proc row*(this: var Matrix; index: cint): Matrix_View 
+proc row*(this: var AFArray; index: cint): AFArray_View 
   {.cdecl, importcpp: "row", header : "arrayfire.h".}
 
-proc row*(this: Matrix; index: cint): Matrix_View 
+proc row*(this: AFArray; index: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "row", header : "arrayfire.h".}
 
-proc rows*(this: var Matrix; first: cint; last: cint): Matrix_View 
+proc rows*(this: var AFArray; first: cint; last: cint): AFArray_View 
   {.cdecl, importcpp: "rows", header : "arrayfire.h".}
 
-proc rows*(this: Matrix; first: cint; last: cint): Matrix_View 
+proc rows*(this: AFArray; first: cint; last: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "rows", header : "arrayfire.h".}
 
-proc col*(this: var Matrix; index: cint): 
-  Matrix_View {.cdecl, importcpp: "col", header : "arrayfire.h".}
+proc col*(this: var AFArray; index: cint): 
+  AFArray_View {.cdecl, importcpp: "col", header : "arrayfire.h".}
 
-proc col*(this: Matrix; index: cint): Matrix_View 
+proc col*(this: AFArray; index: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "col", header : "arrayfire.h".}
 
-proc cols*(this: var Matrix; first: cint; last: cint): Matrix_View 
+proc cols*(this: var AFArray; first: cint; last: cint): AFArray_View 
   {.cdecl, importcpp: "cols", header : "arrayfire.h".}
 
-proc cols*(this: Matrix; first: cint; last: cint): Matrix_View 
+proc cols*(this: AFArray; first: cint; last: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "cols", header : "arrayfire.h".}
 
-proc slice*(this: var Matrix; index: cint): Matrix_View 
+proc slice*(this: var AFArray; index: cint): AFArray_View 
   {.cdecl, importcpp: "slice", header : "arrayfire.h".}
 
-proc slice*(this: Matrix; index: cint): Matrix_View 
+proc slice*(this: AFArray; index: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "slice", header : "arrayfire.h".}
 
-proc slices*(this: var Matrix; first: cint; last: cint): Matrix_View 
+proc slices*(this: var AFArray; first: cint; last: cint): AFArray_View 
   {.cdecl, importcpp: "slices", header : "arrayfire.h".}
 
-proc slices*(this: Matrix; first: cint; last: cint): Matrix_View 
+proc slices*(this: AFArray; first: cint; last: cint): AFArray_View 
   {.noSideEffect, cdecl, importcpp: "slices", header : "arrayfire.h".}
 
-proc `as`*(this: Matrix; `type`: Dtype): Matrix 
+proc `as`*(this: AFArray; `type`: Dtype): AFArray 
   {.noSideEffect, cdecl, importcpp: "as", header : "arrayfire.h".}
 
-proc destroy*(this: var Matrix) 
+proc destroy*(this: var AFArray) 
   {.cdecl, importcpp: "#.~array()", header : "arrayfire.h".}
 
-proc T*(this: Matrix): Matrix 
+proc T*(this: AFArray): AFArray 
   {.noSideEffect, cdecl, importcpp: "T", header : "arrayfire.h".}
 
-proc H*(this: Matrix): Matrix 
+proc H*(this: AFArray): AFArray 
   {.noSideEffect, cdecl, importcpp: "H", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: Matrix) 
+proc `+=`*(this: var AFArray; val: AFArray) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: cdouble) 
+proc `+=`*(this: var AFArray; val: cdouble) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: cfloat) 
+proc `+=`*(this: var AFArray; val: cfloat) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: cint) 
+proc `+=`*(this: var AFArray; val: cint) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: cuint) 
+proc `+=`*(this: var AFArray; val: cuint) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: bool) 
+proc `+=`*(this: var AFArray; val: bool) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: char) 
+proc `+=`*(this: var AFArray; val: char) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: clong) 
+proc `+=`*(this: var AFArray; val: clong) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: culong) 
+proc `+=`*(this: var AFArray; val: culong) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: clonglong) 
+proc `+=`*(this: var AFArray; val: clonglong) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var Matrix; val: culonglong) 
+proc `+=`*(this: var AFArray; val: culonglong) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `-=`*(this: var Matrix; val: Matrix) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: cdouble) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: cfloat) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: cint) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: cuint) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: bool) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: char) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: clong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: culong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: clonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
-proc `-=`*(this: var Matrix; val: culonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: Matrix) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: cdouble) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: cfloat) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: cint) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: cuint) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: bool) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: char) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: clong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: culong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: clonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
-proc `*=`*(this: var Matrix; val: culonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: Matrix) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: cdouble) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: cfloat) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: cint) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: cuint) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: bool) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: char) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: clong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: culong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: clonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
-proc `/=`*(this: var Matrix; val: culonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
-proc `-`*(this: Matrix): Matrix {.noSideEffect, cdecl, importcpp: "(- #)", header : "arrayfire.h".}
-proc `!`*(this: Matrix): Matrix {.noSideEffect, cdecl, importcpp: "(! #)", header : "arrayfire.h".}
-proc nonzeros*(this: Matrix): cint {.noSideEffect, cdecl, importcpp: "nonzeros",header : "arrayfire.h".}
-proc lock*(this: Matrix) {.noSideEffect, cdecl, importcpp: "lock", header : "arrayfire.h".}
-proc unlock*(this: Matrix) {.noSideEffect, cdecl, importcpp: "unlock", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
-proc `+`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
-proc `+`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
-proc `-`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
-proc `-`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
-proc `*`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
-proc `*`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
-proc `/`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
-proc `/`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `==`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
-proc `<`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
-proc `<`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `<=`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# && #)",
+proc `-=`*(this: var AFArray; val: AFArray) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: cdouble) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: cfloat) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
+proc `-=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: AFArray) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: cdouble) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: cfloat) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
+proc `*=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: AFArray) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: cdouble) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: cfloat) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
+proc `/=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
+proc `-`*(this: AFArray): AFArray {.noSideEffect, cdecl, importcpp: "(- #)", header : "arrayfire.h".}
+proc `!`*(this: AFArray): AFArray {.noSideEffect, cdecl, importcpp: "(! #)", header : "arrayfire.h".}
+proc nonzeros*(this: AFArray): cint {.noSideEffect, cdecl, importcpp: "nonzeros",header : "arrayfire.h".}
+proc lock*(this: AFArray) {.noSideEffect, cdecl, importcpp: "lock", header : "arrayfire.h".}
+proc unlock*(this: AFArray) {.noSideEffect, cdecl, importcpp: "unlock", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
+proc `+`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
+proc `+`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `+`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
+proc `-`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
+proc `-`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `-`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
+proc `*`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
+proc `*`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `*`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
+proc `/`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
+proc `/`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `/`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `==`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
+proc `<`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
+proc `<`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `<=`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+proc `&&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# && #)",
+proc `&&`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# && #)",
+proc `&&`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# && #)",
+proc `&&`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
-proc `&&`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# && #)",
+proc `&&`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+proc `||`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `||`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# || #)",
+proc `||`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)",
+proc `%`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
-proc `%`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)",
+proc `%`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
-proc `%`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# % #)",
+proc `%`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# % #)",
+proc `%`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)",
+proc `%`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `%`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
-proc `&`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)",
+proc `&`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
-proc `&`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# & #)",
+proc `&`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# & #)",
+proc `&`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)",
+proc `&`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `&`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
-proc `|`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)",
+proc `|`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
-proc `|`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# | #)",
+proc `|`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# | #)",
+proc `|`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)",
+proc `|`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `|`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
-proc `^`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)",
+proc `^`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
-proc `^`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# ^ #)",
+proc `^`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# ^ #)",
+proc `^`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `^`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `^`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+proc `<<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `<<`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# << #)",
+proc `<<`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: bool; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: cint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: cuint; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: char; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: clong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: culong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: clonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: culonglong; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: cfloat; rhs: Matrix): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: cfloat; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: bool): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: cint): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: cuint): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: char): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: clong): Matrix {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: culong): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+proc `>>`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: clonglong): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: culonglong): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "(# >> #)",
+proc `>>`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
-proc `>>`*(lhs: Matrix; rhs: cfloat): Matrix {.cdecl, importcpp: "(# >> #)",
-    header : "arrayfire.h".}
-
-proc min*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
-
-proc min*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
-
-proc min*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
-
-proc max*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
-
-proc max*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
-
-proc max*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
-
-proc clamp*(matin : Matrix; lo: Matrix; hi: Matrix): Matrix {.cdecl, importcpp: "clamp(@)",
+proc `>>`*(lhs: AFArray; rhs: cfloat): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
 
-proc clamp*(matin : Matrix; lo: Matrix; hi: cdouble): Matrix {.cdecl,
+proc min*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
+
+proc min*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
+
+proc min*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "min(@)", header : "arrayfire.h".}
+
+proc max*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
+
+proc max*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
+
+proc max*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "max(@)", header : "arrayfire.h".}
+
+proc clamp*(matin : AFArray; lo: AFArray; hi: AFArray): AFArray {.cdecl, importcpp: "clamp(@)",
+    header : "arrayfire.h".}
+
+proc clamp*(matin : AFArray; lo: AFArray; hi: cdouble): AFArray {.cdecl,
     importcpp: "clamp(@)", header : "arrayfire.h".}
 
-proc clamp*(matin : Matrix; lo: cdouble; hi: Matrix): Matrix {.cdecl,
+proc clamp*(matin : AFArray; lo: cdouble; hi: AFArray): AFArray {.cdecl,
     importcpp: "clamp(@)", header : "arrayfire.h".}
 
-proc clamp*(matin : Matrix; lo: cdouble; hi: cdouble): Matrix {.cdecl,
+proc clamp*(matin : AFArray; lo: cdouble; hi: cdouble): AFArray {.cdecl,
     importcpp: "clamp(@)", header : "arrayfire.h".}
 
-proc rem*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
+proc rem*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
 
-proc rem*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
+proc rem*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
 
-proc rem*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
+proc rem*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "rem(@)", header : "arrayfire.h".}
 
-proc `mod`*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "mod(@)", header : "arrayfire.h".}
+proc `mod`*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "mod(@)", header : "arrayfire.h".}
 
-proc `mod`*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "mod(@)",
+proc `mod`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "mod(@)",
     header : "arrayfire.h".}
 
-proc `mod`*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "mod(@)",
+proc `mod`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "mod(@)",
     header : "arrayfire.h".}
 
-proc pad*(matin: Matrix; beginPadding: Dim4, endPadding: Dim4, padFillType: BorderType ): Matrix {.cdecl, importcpp: "pad(@)",
+proc pad*(matin: AFArray; beginPadding: Dim4, endPadding: Dim4, padFillType: BorderType ): AFArray {.cdecl, importcpp: "pad(@)",
     header : "arrayfire.h".}
 
-proc abs*(matin : Matrix): Matrix {.cdecl, importcpp: "abs(@)", header : "arrayfire.h".}
+proc abs*(matin : AFArray): AFArray {.cdecl, importcpp: "abs(@)", header : "arrayfire.h".}
 
-proc arg*(matin : Matrix): Matrix {.cdecl, importcpp: "arg(@)", header : "arrayfire.h".}
+proc arg*(matin : AFArray): AFArray {.cdecl, importcpp: "arg(@)", header : "arrayfire.h".}
 
-proc sign*(matin : Matrix): Matrix {.cdecl, importcpp: "sign(@)", header : "arrayfire.h".}
+proc sign*(matin : AFArray): AFArray {.cdecl, importcpp: "sign(@)", header : "arrayfire.h".}
 
-proc round*(matin : Matrix): Matrix {.cdecl, importcpp: "round(@)", header : "arrayfire.h".}
+proc round*(matin : AFArray): AFArray {.cdecl, importcpp: "round(@)", header : "arrayfire.h".}
 
-proc trunc*(matin : Matrix): Matrix {.cdecl, importcpp: "trunc(@)", header : "arrayfire.h".}
+proc trunc*(matin : AFArray): AFArray {.cdecl, importcpp: "trunc(@)", header : "arrayfire.h".}
 
-proc floor*(matin : Matrix): Matrix {.cdecl, importcpp: "floor(@)", header : "arrayfire.h".}
+proc floor*(matin : AFArray): AFArray {.cdecl, importcpp: "floor(@)", header : "arrayfire.h".}
 
-proc ceil*(matin : Matrix): Matrix {.cdecl, importcpp: "ceil(@)", header : "arrayfire.h".}
+proc ceil*(matin : AFArray): AFArray {.cdecl, importcpp: "ceil(@)", header : "arrayfire.h".}
 
-proc hypot*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "hypot(@)",
+proc hypot*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "hypot(@)",
     header : "arrayfire.h".}
 
-proc hypot*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "hypot(@)",
+proc hypot*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "hypot(@)",
     header : "arrayfire.h".}
 
-proc hypot*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "hypot(@)",
+proc hypot*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "hypot(@)",
     header : "arrayfire.h".}
 
-proc sin*(matin : Matrix): Matrix {.cdecl, importcpp: "sin(@)", header : "arrayfire.h".}
+proc sin*(matin : AFArray): AFArray {.cdecl, importcpp: "sin(@)", header : "arrayfire.h".}
 
-proc cos*(matin : Matrix): Matrix {.cdecl, importcpp: "cos(@)", header : "arrayfire.h".}
+proc cos*(matin : AFArray): AFArray {.cdecl, importcpp: "cos(@)", header : "arrayfire.h".}
 
-proc tan*(matin : Matrix): Matrix {.cdecl, importcpp: "tan(@)", header : "arrayfire.h".}
+proc tan*(matin : AFArray): AFArray {.cdecl, importcpp: "tan(@)", header : "arrayfire.h".}
 
-proc asin*(matin : Matrix): Matrix {.cdecl, importcpp: "asin(@)", header : "arrayfire.h".}
+proc asin*(matin : AFArray): AFArray {.cdecl, importcpp: "asin(@)", header : "arrayfire.h".}
 
-proc acos*(matin : Matrix): Matrix {.cdecl, importcpp: "acos(@)", header : "arrayfire.h".}
+proc acos*(matin : AFArray): AFArray {.cdecl, importcpp: "acos(@)", header : "arrayfire.h".}
 
-proc atan*(matin : Matrix): Matrix {.cdecl, importcpp: "atan(@)", header : "arrayfire.h".}
+proc atan*(matin : AFArray): AFArray {.cdecl, importcpp: "atan(@)", header : "arrayfire.h".}
 
-proc atan2*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "atan2(@)",
+proc atan2*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "atan2(@)",
     header : "arrayfire.h".}
 
-proc atan2*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "atan2(@)",
+proc atan2*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "atan2(@)",
     header : "arrayfire.h".}
 
-proc atan2*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "atan2(@)",
+proc atan2*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "atan2(@)",
     header : "arrayfire.h".}
 
-proc complex*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "complex(@)",
+proc complex*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "complex(@)",
     header : "arrayfire.h".}
 
-proc complex*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "complex(@)",
+proc complex*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "complex(@)",
     header : "arrayfire.h".}
 
-proc complex*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "complex(@)",
+proc complex*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "complex(@)",
     header : "arrayfire.h".}
 
-proc complex*(matin : Matrix): Matrix {.cdecl, importcpp: "complex(@)", header : "arrayfire.h".}
+proc complex*(matin : AFArray): AFArray {.cdecl, importcpp: "complex(@)", header : "arrayfire.h".}
 
-proc real*(matin : Matrix): Matrix {.cdecl, importcpp: "real(@)", header : "arrayfire.h".}
+proc real*(matin : AFArray): AFArray {.cdecl, importcpp: "real(@)", header : "arrayfire.h".}
 
-proc imag*(matin : Matrix): Matrix {.cdecl, importcpp: "imag(@)", header : "arrayfire.h".}
+proc imag*(matin : AFArray): AFArray {.cdecl, importcpp: "imag(@)", header : "arrayfire.h".}
 
-proc conjg*(matin : Matrix): Matrix {.cdecl, importcpp: "conjg(@)", header : "arrayfire.h".}
+proc conjg*(matin : AFArray): AFArray {.cdecl, importcpp: "conjg(@)", header : "arrayfire.h".}
 
-proc sinh*(matin : Matrix): Matrix {.cdecl, importcpp: "sinh(@)", header : "arrayfire.h".}
+proc sinh*(matin : AFArray): AFArray {.cdecl, importcpp: "sinh(@)", header : "arrayfire.h".}
 
-proc cosh*(matin : Matrix): Matrix {.cdecl, importcpp: "cosh(@)", header : "arrayfire.h".}
+proc cosh*(matin : AFArray): AFArray {.cdecl, importcpp: "cosh(@)", header : "arrayfire.h".}
 
-proc tanh*(matin : Matrix): Matrix {.cdecl, importcpp: "tanh(@)", header : "arrayfire.h".}
+proc tanh*(matin : AFArray): AFArray {.cdecl, importcpp: "tanh(@)", header : "arrayfire.h".}
 
-proc asinh*(matin : Matrix): Matrix {.cdecl, importcpp: "asinh(@)", header : "arrayfire.h".}
+proc asinh*(matin : AFArray): AFArray {.cdecl, importcpp: "asinh(@)", header : "arrayfire.h".}
 
-proc acosh*(matin : Matrix): Matrix {.cdecl, importcpp: "acosh(@)", header : "arrayfire.h".}
+proc acosh*(matin : AFArray): AFArray {.cdecl, importcpp: "acosh(@)", header : "arrayfire.h".}
 
-proc atanh*(matin : Matrix): Matrix {.cdecl, importcpp: "atanh(@)", header : "arrayfire.h".}
+proc atanh*(matin : AFArray): AFArray {.cdecl, importcpp: "atanh(@)", header : "arrayfire.h".}
 
-proc root*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "root(@)", header : "arrayfire.h".}
+proc root*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "root(@)", header : "arrayfire.h".}
 
-proc root*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "root(@)",
+proc root*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "root(@)",
     header : "arrayfire.h".}
 
-proc root*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "root(@)",
+proc root*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "root(@)",
     header : "arrayfire.h".}
 
-proc pow*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
+proc pow*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
 
-proc pow*(lhs: Matrix; rhs: cdouble): Matrix {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
+proc pow*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
 
-proc pow*(lhs: cdouble; rhs: Matrix): Matrix {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
+proc pow*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "pow(@)", header : "arrayfire.h".}
 
-proc pow2*(matin : Matrix): Matrix {.cdecl, importcpp: "pow2(@)", header : "arrayfire.h".}
+proc pow2*(matin : AFArray): AFArray {.cdecl, importcpp: "pow2(@)", header : "arrayfire.h".}
 
-proc sigmoid*(matin : Matrix): Matrix {.cdecl, importcpp: "sigmoid(@)", header : "arrayfire.h".}
+proc sigmoid*(matin : AFArray): AFArray {.cdecl, importcpp: "sigmoid(@)", header : "arrayfire.h".}
 
-proc exp*(matin : Matrix): Matrix {.cdecl, importcpp: "exp(@)", header : "arrayfire.h".}
+proc exp*(matin : AFArray): AFArray {.cdecl, importcpp: "exp(@)", header : "arrayfire.h".}
 
-proc expm1*(matin : Matrix): Matrix {.cdecl, importcpp: "expm1(@)", header : "arrayfire.h".}
+proc expm1*(matin : AFArray): AFArray {.cdecl, importcpp: "expm1(@)", header : "arrayfire.h".}
 
-proc erf*(matin : Matrix): Matrix {.cdecl, importcpp: "erf(@)", header : "arrayfire.h".}
+proc erf*(matin : AFArray): AFArray {.cdecl, importcpp: "erf(@)", header : "arrayfire.h".}
 
-proc erfc*(matin : Matrix): Matrix {.cdecl, importcpp: "erfc(@)", header : "arrayfire.h".}
+proc erfc*(matin : AFArray): AFArray {.cdecl, importcpp: "erfc(@)", header : "arrayfire.h".}
 
-proc log*(matin : Matrix): Matrix {.cdecl, importcpp: "log(@)", header : "arrayfire.h".}
+proc log*(matin : AFArray): AFArray {.cdecl, importcpp: "log(@)", header : "arrayfire.h".}
 
-proc log1p*(matin : Matrix): Matrix {.cdecl, importcpp: "log1p(@)", header : "arrayfire.h".}
+proc log1p*(matin : AFArray): AFArray {.cdecl, importcpp: "log1p(@)", header : "arrayfire.h".}
 
-proc log10*(matin : Matrix): Matrix {.cdecl, importcpp: "log10(@)", header : "arrayfire.h".}
+proc log10*(matin : AFArray): AFArray {.cdecl, importcpp: "log10(@)", header : "arrayfire.h".}
 
-proc log2*(matin : Matrix): Matrix {.cdecl, importcpp: "log2(@)", header : "arrayfire.h".}
+proc log2*(matin : AFArray): AFArray {.cdecl, importcpp: "log2(@)", header : "arrayfire.h".}
 
-proc sqrt*(matin : Matrix): Matrix {.cdecl, importcpp: "sqrt(@)", header : "arrayfire.h".}
+proc sqrt*(matin : AFArray): AFArray {.cdecl, importcpp: "sqrt(@)", header : "arrayfire.h".}
 
-proc rsqrt*(matin : Matrix): Matrix {.cdecl, importcpp: "rsqrt(@)", header : "arrayfire.h".}
+proc rsqrt*(matin : AFArray): AFArray {.cdecl, importcpp: "rsqrt(@)", header : "arrayfire.h".}
 
-proc cbrt*(matin : Matrix): Matrix {.cdecl, importcpp: "cbrt(@)", header : "arrayfire.h".}
+proc cbrt*(matin : AFArray): AFArray {.cdecl, importcpp: "cbrt(@)", header : "arrayfire.h".}
 
-proc factorial*(matin : Matrix): Matrix {.cdecl, importcpp: "factorial(@)", header : "arrayfire.h".}
+proc factorial*(matin : AFArray): AFArray {.cdecl, importcpp: "factorial(@)", header : "arrayfire.h".}
 
-proc tgamma*(matin : Matrix): Matrix {.cdecl, importcpp: "tgamma(@)", header : "arrayfire.h".}
+proc tgamma*(matin : AFArray): AFArray {.cdecl, importcpp: "tgamma(@)", header : "arrayfire.h".}
 
-proc lgamma*(matin : Matrix): Matrix {.cdecl, importcpp: "lgamma(@)", header : "arrayfire.h".}
+proc lgamma*(matin : AFArray): AFArray {.cdecl, importcpp: "lgamma(@)", header : "arrayfire.h".}
 
-proc iszero*(matin : Matrix): Matrix {.cdecl, importcpp: "iszero(@)", header : "arrayfire.h".}
+proc iszero*(matin : AFArray): AFArray {.cdecl, importcpp: "iszero(@)", header : "arrayfire.h".}
 
-proc isInf*(matin : Matrix): Matrix {.cdecl, importcpp: "isInf(@)", header : "arrayfire.h".}
+proc isInf*(matin : AFArray): AFArray {.cdecl, importcpp: "isInf(@)", header : "arrayfire.h".}
 
-proc isNaN*(matin : Matrix): Matrix {.cdecl, importcpp: "isNaN(@)", header : "arrayfire.h".}
+proc isNaN*(matin : AFArray): AFArray {.cdecl, importcpp: "isNaN(@)", header : "arrayfire.h".}
 
 proc setBackend*(bknd: Backend) 
   {.cdecl, importcpp: "af::setBackend(@)", header : "arrayfire.h".}
@@ -1416,43 +1416,43 @@ proc getBackendCount*(): cuint
 proc af_getAvailableBackends*(): cint 
   {.cdecl, importcpp: "af::getAvailableBackends(@)", header : "arrayfire.h".}
 
-proc getBackendId*(matin : Matrix): Backend 
+proc getBackendId*(matin : AFArray): Backend 
   {.cdecl, importcpp: "af::getBackendId(@)", header : "arrayfire.h".}
 
 proc getActiveBackend*(): Backend 
   {.cdecl, importcpp: "af::getActiveBackend(@)",header : "arrayfire.h".}
 
-proc getDeviceId*(matin : Matrix): cint 
+proc getDeviceId*(matin : AFArray): cint 
   {.cdecl, importcpp: "af::getDeviceId(@)", header : "arrayfire.h".}
 
 #todo: find out why call with all arguments goes to wrong function
-proc matmul*(lhs: Matrix; rhs: Matrix; 
+proc matmul*(lhs: AFArray; rhs: AFArray; 
              optLhs: MatProp =  MatProp.NONE;
-             optRhs: MatProp = MatProp.NONE ): Matrix 
+             optRhs: MatProp = MatProp.NONE ): AFArray 
   {.cdecl, importcpp: "af::matmul(#,#)", header : "arrayfire.h".}  
 
-proc matmulNT*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "af::matmulNT(@)",
+proc matmulNT*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "af::matmulNT(@)",
     header : "arrayfire.h".}
 
-proc matmulTN*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "af::matmulTN(@)",
+proc matmulTN*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "af::matmulTN(@)",
     header : "arrayfire.h".}
 
-proc matmulTT*(lhs: Matrix; rhs: Matrix): Matrix {.cdecl, importcpp: "af::matmulTT(@)",
+proc matmulTT*(lhs: AFArray; rhs: AFArray): AFArray {.cdecl, importcpp: "af::matmulTT(@)",
     header : "arrayfire.h".}
 
-proc matmul*(a: Matrix; b: Matrix; c: Matrix): Matrix {.cdecl, importcpp: "af::matmul(@)",
+proc matmul*(a: AFArray; b: AFArray; c: AFArray): AFArray {.cdecl, importcpp: "af::matmul(@)",
     header : "arrayfire.h".}
 
-proc matmul*(a: Matrix; b: Matrix; c: Matrix; d: Matrix): Matrix {.cdecl,
+proc matmul*(a: AFArray; b: AFArray; c: AFArray; d: AFArray): AFArray {.cdecl,
     importcpp: "af::matmul(@)", header : "arrayfire.h".}
 
-proc dot*(lhs: Matrix; rhs: Matrix; optLhs: MatProp ;
-         optRhs: MatProp ): Matrix {.cdecl, importcpp: "dot(@)", header : "arrayfire.h".}
+proc dot*(lhs: AFArray; rhs: AFArray; optLhs: MatProp ;
+         optRhs: MatProp ): AFArray {.cdecl, importcpp: "dot(@)", header : "arrayfire.h".}
 
-proc transpose*(matin : Matrix; conjugate: bool = false): Matrix {.cdecl,
+proc transpose*(matin : AFArray; conjugate: bool = false): AFArray {.cdecl,
     importcpp: "transpose(@)", header : "arrayfire.h".}
 
-proc transposeInPlace*(`in`: var Matrix; conjugate: bool = false) {.cdecl,
+proc transposeInPlace*(`in`: var AFArray; conjugate: bool = false) {.cdecl,
     importcpp: "transposeInPlace(@)", header : "arrayfire.h".}
 
 proc `+`*(lhs: Complex32; rhs: Complex32): Complex32 {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
@@ -1478,116 +1478,116 @@ proc abs*(val: Complex64): cdouble {.cdecl, importcpp: "abs(@)", header : "array
 proc conj*(val: Complex32): cfloat {.cdecl, importcpp: "conj(@)", header : "arrayfire.h".}
 proc conj*(val: Complex64): cdouble {.cdecl, importcpp: "conj(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; dims: Dim4; ty: Dtype ): Matrix 
+proc constant*[T](val: T; dims: Dim4; ty: Dtype ): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; dims: Dim4): Matrix 
+proc constant*[T](val: T; dims: Dim4): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; ty: Dtype ): Matrix 
+proc constant*[T](val: T; d0: DimT; ty: Dtype ): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT): Matrix 
+proc constant*[T](val: T; d0: DimT): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; ty: Dtype): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; ty: Dtype): AFArray 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; ty: Dtype): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; ty: Dtype): AFArray 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT): AFArray 
   {.cdecl, importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT;ty: Dtype = f64 ): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT;ty: Dtype = f64 ): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT): Matrix 
+proc constant*[T](val: T; d0: DimT; d1: DimT; d2: DimT; d3: DimT): AFArray 
   {.cdecl,importcpp: "af::constant(@)", header : "arrayfire.h".}
 
-proc identity*(dims: Dim4; ty: Dtype = f32): Matrix {.cdecl, importcpp: "af::identity(@)",
+proc identity*(dims: Dim4; ty: Dtype = f32): AFArray {.cdecl, importcpp: "af::identity(@)",
     header : "arrayfire.h".}
 
-proc identity*(d0: DimT; ty: Dtype = f32): Matrix {.cdecl, importcpp: "af::identity(@)",
+proc identity*(d0: DimT; ty: Dtype = f32): AFArray {.cdecl, importcpp: "af::identity(@)",
     header : "arrayfire.h".}
 
-proc identity*(d0: DimT; d1: DimT; ty: Dtype = f32): Matrix {.cdecl,
+proc identity*(d0: DimT; d1: DimT; ty: Dtype = f32): AFArray {.cdecl,
     importcpp: "af::identity(@)", header : "arrayfire.h".}
 
-proc identity*(d0: DimT; d1: DimT; d2: DimT; ty: Dtype = f32): Matrix {.cdecl,
+proc identity*(d0: DimT; d1: DimT; d2: DimT; ty: Dtype = f32): AFArray {.cdecl,
     importcpp: "af::identity(@)", header : "arrayfire.h".}
 
-proc identity*(d0: DimT; d1: DimT; d2: DimT; d3: DimT; ty: Dtype = f32): Matrix {.cdecl,
+proc identity*(d0: DimT; d1: DimT; d2: DimT; d3: DimT; ty: Dtype = f32): AFArray {.cdecl,
     importcpp: "af::identity(@)", header : "arrayfire.h".}
 
-proc range*(dims: Dim4; afp_seq_dim: cint = - 1; ty: Dtype = f32): Matrix {.cdecl,
+proc range*(dims: Dim4; afp_seq_dim: cint = - 1; ty: Dtype = f32): AFArray {.cdecl,
     importcpp: "af::range(@)", header : "arrayfire.h".}
 
 proc range*(d0: DimT; d1: DimT = 1; d2: DimT = 1; d3: DimT = 1; afp_seq_dim: cint = - 1;
-           ty: Dtype = f32): Matrix 
+           ty: Dtype = f32): AFArray 
     {.cdecl, importcpp: "af::range(@)", header : "arrayfire.h".}
 
-proc iota*(dims: Dim4; tileDims: Dim4 ; ty: Dtype ): Matrix {.cdecl,
+proc iota*(dims: Dim4; tileDims: Dim4 ; ty: Dtype ): AFArray {.cdecl,
     importcpp: "iota(@)", header : "arrayfire.h".}
 
-proc diag*(matin : Matrix; num: cint = 0; extract: bool = true): Matrix {.cdecl,
+proc diag*(matin : AFArray; num: cint = 0; extract: bool = true): AFArray {.cdecl,
     importcpp: "af::diag(@)", header : "arrayfire.h".}
 
-proc join*(dim: cint; first: Matrix; second: Matrix): Matrix {.cdecl,
+proc join*(dim: cint; first: AFArray; second: AFArray): AFArray {.cdecl,
     importcpp: "af::join(@)", header : "arrayfire.h".}
 
-proc join*(dim: cint; first: Matrix; second: Matrix; third: Matrix): Matrix {.cdecl,
+proc join*(dim: cint; first: AFArray; second: AFArray; third: AFArray): AFArray {.cdecl,
     importcpp: "af::join(@)", header : "arrayfire.h".}
 
-proc join*(dim: cint; first: Matrix; second: Matrix; third: Matrix; fourth: Matrix): Matrix {.
+proc join*(dim: cint; first: AFArray; second: AFArray; third: AFArray; fourth: AFArray): AFArray {.
     cdecl, importcpp: "af::join(@)", header : "arrayfire.h".}
 
-proc tile*(matin : Matrix; x: cuint; y: cuint = 1; z: cuint = 1; w: cuint = 1): Matrix 
+proc tile*(matin : AFArray; x: cuint; y: cuint = 1; z: cuint = 1; w: cuint = 1): AFArray 
   {.cdecl, importcpp: "af::tile(@)", header : "arrayfire.h".}
 
-proc tile*(matin : Matrix; dims: Dim4): Matrix 
+proc tile*(matin : AFArray; dims: Dim4): AFArray 
   {.cdecl, importcpp: "af::tile(@)", header : "arrayfire.h".}
 
-proc reorder*(matin : Matrix; x: cuint; y: cuint = 1; z: cuint = 2; w: cuint = 3): Matrix 
+proc reorder*(matin : AFArray; x: cuint; y: cuint = 1; z: cuint = 2; w: cuint = 3): AFArray 
   {.cdecl, importcpp: "af::reorder(@)", header : "arrayfire.h".}
 
-proc shift*(matin : Matrix; x: cint; y: cint = 0; z: cint = 0; w: cint = 0): Matrix 
+proc shift*(matin : AFArray; x: cint; y: cint = 0; z: cint = 0; w: cint = 0): AFArray 
   {.cdecl, importcpp: "af::shift(@)", header : "arrayfire.h".}
 
-proc moddims*(matin : Matrix; ndims: cuint; dims: ptr DimT): Matrix 
+proc moddims*(matin : AFArray; ndims: cuint; dims: ptr DimT): AFArray 
   {.cdecl, importcpp: "af::moddims(@)", header : "arrayfire.h".}
 
-proc moddims*(matin : Matrix; dims: Dim4): Matrix 
+proc moddims*(matin : AFArray; dims: Dim4): AFArray 
   {.cdecl, importcpp: "af::moddims(@)", header : "arrayfire.h".}
 
-proc moddims*(matin : Matrix; d0: DimT; d1: DimT = 1; d2: DimT = 1; d3: DimT = 1): Matrix {.cdecl,
+proc moddims*(matin : AFArray; d0: DimT; d1: DimT = 1; d2: DimT = 1; d3: DimT = 1): AFArray {.cdecl,
     importcpp: "moddims(@)", header : "arrayfire.h".}
 
-proc flat*(matin : Matrix): Matrix 
+proc flat*(matin : AFArray): AFArray 
   {.cdecl, importcpp: "af::flat(@)", header : "arrayfire.h".}
 
-proc flip*(matin : Matrix; dim: cuint): Matrix 
+proc flip*(matin : AFArray; dim: cuint): AFArray 
   {.cdecl, importcpp: "af::flip(@)", header : "arrayfire.h".}
 
-proc lower*(matin : Matrix; isUnitDiag: bool = false): Matrix 
+proc lower*(matin : AFArray; isUnitDiag: bool = false): AFArray 
   {.cdecl, importcpp: "af::lower(@)", header : "arrayfire.h".}
 
-proc upper*(matin : Matrix; isUnitDiag: bool = false): Matrix 
+proc upper*(matin : AFArray; isUnitDiag: bool = false): AFArray 
   {.cdecl, importcpp: "af::upper(@)", header : "arrayfire.h".}
 
-proc select*(cond: Matrix; a: Matrix; b: Matrix): Matrix 
+proc select*(cond: AFArray; a: AFArray; b: AFArray): AFArray 
   {.cdecl, importcpp: "af::select(@)", header : "arrayfire.h".}
 
-proc select*(cond: Matrix; a: Matrix; b: cdouble): Matrix 
+proc select*(cond: AFArray; a: AFArray; b: cdouble): AFArray 
   {.cdecl, importcpp: "af::select(@)", header : "arrayfire.h".}
 
-proc select*(cond: Matrix; a: cdouble; b: Matrix): Matrix 
+proc select*(cond: AFArray; a: cdouble; b: AFArray): AFArray 
   {.cdecl, importcpp: "af::select(@)", header : "arrayfire.h".}
 
-proc replace*(a: var Matrix; cond: Matrix; b: Matrix) 
+proc replace*(a: var AFArray; cond: AFArray; b: AFArray) 
   {.cdecl, importcpp: "af::replace(@)", header : "arrayfire.h".}
 
-proc replace*(a: var Matrix; cond: Matrix; b: cdouble) 
+proc replace*(a: var AFArray; cond: AFArray; b: cdouble) 
   {.cdecl, importcpp: "af::replace(@)", header : "arrayfire.h".}
 
 proc info*() 
@@ -1675,19 +1675,19 @@ proc destroyfeatures*(this: var Features)
 proc getNumFeatures*(this: Features): csize_t 
   {.noSideEffect, cdecl, importcpp: "getNumFeatures", header : "arrayfire.h".}
 
-proc getX*(this: Features): Matrix 
+proc getX*(this: Features): AFArray 
   {.noSideEffect, cdecl, importcpp: "getX", header : "arrayfire.h".}
 
-proc getY*(this: Features): Matrix 
+proc getY*(this: Features): AFArray 
   {.noSideEffect, cdecl, importcpp: "getY", header : "arrayfire.h".}
 
-proc getScore*(this: Features): Matrix 
+proc getScore*(this: Features): AFArray 
   {.noSideEffect, cdecl, importcpp: "getScore", header : "arrayfire.h".}
 
-proc getOrientation*(this: Features): Matrix 
+proc getOrientation*(this: Features): AFArray 
   {.noSideEffect, cdecl, importcpp: "getOrientation", header : "arrayfire.h".}
 
-proc getSize*(this: Features): Matrix 
+proc getSize*(this: Features): AFArray 
   {.noSideEffect, cdecl, importcpp: "getSize", header : "arrayfire.h".}
 
 proc get*(this: Features): AFC_Features 
@@ -1702,7 +1702,7 @@ proc gforGet*(): bool
 proc gforSet*(val: bool) 
   {.cdecl, importcpp: "af::gforSet(@)", header : "arrayfire.h".}
 
-proc batchFunc*(lhs: Matrix; rhs: Matrix; `func`: BatchFuncT): Matrix {.cdecl,
+proc batchFunc*(lhs: AFArray; rhs: AFArray; `func`: BatchFuncT): AFArray {.cdecl,
     importcpp: "af::batchFunc(@)", header : "arrayfire.h".}
 
 proc afwindow*(): Window 
@@ -1735,51 +1735,51 @@ proc setSize*(this: var Window; w: cuint; h: cuint)
 proc setColorMap*(this: var Window; cmap: ColorMap) 
   {.cdecl, importcpp: "setColorMap", header : "arrayfire.h".}
 
-proc image*(this: var Window; matin : Matrix; title: cstring = nil) 
+proc image*(this: var Window; matin : AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "image", header : "arrayfire.h".}
 
-proc plot*(this: var Window; matin : Matrix; title: cstring = nil) 
+proc plot*(this: var Window; matin : AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "plot", header : "arrayfire.h".}
 
-proc plot*(this: var Window; x: Matrix; y: Matrix; z: Matrix; title: cstring = nil) 
+proc plot*(this: var Window; x: AFArray; y: AFArray; z: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "plot", header : "arrayfire.h".}
 
-proc plot*(this: var Window; x: Matrix; y: Matrix; title: cstring = nil) 
+proc plot*(this: var Window; x: AFArray; y: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "plot", header : "arrayfire.h".}
 
-proc scatter*(this: var Window; matin : Matrix; marker: MarkerType ; title: cstring = nil) 
+proc scatter*(this: var Window; matin : AFArray; marker: MarkerType ; title: cstring = nil) 
   {.cdecl, importcpp: "scatter", header : "arrayfire.h".}
 
-proc scatter*(this: var Window; x: Matrix; y: Matrix; z: Matrix; marker: MarkerType ; title: cstring ) 
+proc scatter*(this: var Window; x: AFArray; y: AFArray; z: AFArray; marker: MarkerType ; title: cstring ) 
   {.cdecl, importcpp: "scatter", header : "arrayfire.h".}
 
-proc scatter*(this: var Window; x: Matrix; y: Matrix; marker: MarkerType ; title: cstring = nil) 
+proc scatter*(this: var Window; x: AFArray; y: AFArray; marker: MarkerType ; title: cstring = nil) 
   {.cdecl, importcpp: "scatter", header : "arrayfire.h".}
 
-proc hist*(this: var Window; x: Matrix; minval: cdouble; maxval: cdouble; title: cstring = nil) 
+proc hist*(this: var Window; x: AFArray; minval: cdouble; maxval: cdouble; title: cstring = nil) 
   {.cdecl, importcpp: "hist", header : "arrayfire.h".}
 
-proc surface*(this: var Window; s: Matrix; title: cstring = nil) 
+proc surface*(this: var Window; s: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "surface", header : "arrayfire.h".}
 
-proc surface*(this: var Window; xVals: Matrix; yVals: Matrix; s: Matrix; title: cstring = nil) 
+proc surface*(this: var Window; xVals: AFArray; yVals: AFArray; s: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "surface", header : "arrayfire.h".}
 
-proc vectorField*(this: var Window; points: Matrix; directions: Matrix; title: cstring = nil) 
+proc vectorField*(this: var Window; points: AFArray; directions: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "vectorField", header : "arrayfire.h".}
 
-proc vectorField*(this: var Window; xPoints: Matrix; yPoints: Matrix; zPoints: Matrix;
-                 xDirs: Matrix; yDirs: Matrix; zDirs: Matrix; title: cstring = nil) 
+proc vectorField*(this: var Window; xPoints: AFArray; yPoints: AFArray; zPoints: AFArray;
+                 xDirs: AFArray; yDirs: AFArray; zDirs: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "vectorField", header : "arrayfire.h".}
 
-proc vectorField*(this: var Window; xPoints: Matrix; yPoints: Matrix; xDirs: Matrix;
-                 yDirs: Matrix; title: cstring = nil) 
+proc vectorField*(this: var Window; xPoints: AFArray; yPoints: AFArray; xDirs: AFArray;
+                 yDirs: AFArray; title: cstring = nil) 
   {.cdecl, importcpp: "vectorField", header : "arrayfire.h".}
 
-proc setAxesLimits*(this: var Window; x: Matrix; y: Matrix; exact: bool = false) 
+proc setAxesLimits*(this: var Window; x: AFArray; y: AFArray; exact: bool = false) 
   {.cdecl, importcpp: "setAxesLimits", header : "arrayfire.h".}
 
-proc setAxesLimits*(this: var Window; x: Matrix; y: Matrix; z: Matrix; exact: bool = false) 
+proc setAxesLimits*(this: var Window; x: AFArray; y: AFArray; z: AFArray; exact: bool = false) 
   {.cdecl, importcpp: "setAxesLimits", header : "arrayfire.h".}
 
 proc setAxesLimits*(this: var Window; xmin: cfloat; xmax: cfloat; ymin: cfloat;
@@ -1809,239 +1809,239 @@ proc setVisibility*(this: var Window; isVisible: bool)
 proc `[]`*(this: var Window; r: cint; c: cint): var Window 
   {.cdecl, importcpp: "#(@)", header : "arrayfire.h".}
 
-proc grad*(dx: var Matrix; dy: var Matrix; matin : Matrix) 
+proc grad*(dx: var AFArray; dy: var AFArray; matin : AFArray) 
   {.cdecl, importcpp: "af::grad(@)", header : "arrayfire.h".}
 
-proc grad*(matin: Matrix) : tuple[dx: Matrix, dy : Matrix] =
-  var dx : Matrix
-  var dy : Matrix 
+proc grad*(matin: AFArray) : tuple[dx: AFArray, dy : AFArray] =
+  var dx : AFArray
+  var dy : AFArray 
 
   grad(dx, dy, matin)
   (dx, dy)
 
-proc loadImage*(filename: cstring; isColor: bool = false): Matrix 
+proc loadImage*(filename: cstring; isColor: bool = false): AFArray 
   {.cdecl, importcpp: "af::loadImage(@)", header : "arrayfire.h".}
 
-proc saveImage*(filename: cstring; matin : Matrix) 
+proc saveImage*(filename: cstring; matin : AFArray) 
   {.cdecl, importcpp: "af::saveImage(@)", header : "arrayfire.h".}
 
-proc loadImageMem*(`ptr`: pointer): Matrix 
+proc loadImageMem*(`ptr`: pointer): AFArray 
   {.cdecl, importcpp: "af::loadImageMem(@)", header : "arrayfire.h".}
 
-proc saveImageMem*(matin : Matrix; format: ImageFormat ): pointer 
+proc saveImageMem*(matin : AFArray; format: ImageFormat ): pointer 
   {.cdecl, importcpp: "af::saveImageMem(@)", header : "arrayfire.h".}
 
 proc deleteImageMem*(`ptr`: pointer) 
   {.cdecl, importcpp: "af::deleteImageMem(@)", header : "arrayfire.h".}
 
-proc loadImageNative*(filename: cstring): Matrix 
+proc loadImageNative*(filename: cstring): AFArray 
   {.cdecl, importcpp: "af::loadImageNative(@)", header : "arrayfire.h".}
 
-proc saveImageNative*(filename: cstring; matin : Matrix) 
+proc saveImageNative*(filename: cstring; matin : AFArray) 
   {.cdecl, importcpp: "af::saveImageNative(@)", header : "arrayfire.h".}
 
 proc isImageIOAvailable*(): bool 
   {.cdecl, importcpp: "af::isImageIOAvailable(@)", header : "arrayfire.h".}
 
-proc resize*(matin : Matrix; odim0: DimT; odim1: DimT;
-            `method`: InterpType ): Matrix 
+proc resize*(matin : AFArray; odim0: DimT; odim1: DimT;
+            `method`: InterpType ): AFArray 
   {.cdecl, importcpp: "af::resize(@)", header : "arrayfire.h".}
 
-proc resize*(scale0: cfloat; scale1: cfloat; matin : Matrix;
-            `method`: InterpType ): Matrix 
+proc resize*(scale0: cfloat; scale1: cfloat; matin : AFArray;
+            `method`: InterpType ): AFArray 
   {.cdecl, importcpp: "af::resize(@)", header : "arrayfire.h".}
 
-proc resize*(scale: cfloat; matin : Matrix; `method`: InterpType ): Matrix 
+proc resize*(scale: cfloat; matin : AFArray; `method`: InterpType ): AFArray 
   {.cdecl, importcpp: "af::resize(@)", header : "arrayfire.h".}
 
-proc rotate*(matin : Matrix; theta: cfloat; crop: bool = true;
-            `method`: InterpType ): Matrix 
+proc rotate*(matin : AFArray; theta: cfloat; crop: bool = true;
+            `method`: InterpType ): AFArray 
   {.cdecl, importcpp: "af::rotate(@)", header : "arrayfire.h".}
 
-proc transform*(matin : Matrix; transform: Matrix; odim0: DimT = 0; odim1: DimT = 0;
-               `method`: InterpType ; inverse: bool = true): Matrix 
+proc transform*(matin : AFArray; transform: AFArray; odim0: DimT = 0; odim1: DimT = 0;
+               `method`: InterpType ; inverse: bool = true): AFArray 
   {.cdecl, importcpp: "af::transform(@)", header : "arrayfire.h".}
 
-proc transformCoordinates*(tf: Matrix; d0: cfloat; d1: cfloat): Matrix 
+proc transformCoordinates*(tf: AFArray; d0: cfloat; d1: cfloat): AFArray 
   {.cdecl, importcpp: "af::transformCoordinates(@)", header : "arrayfire.h".}
 
-proc translate*(matin : Matrix; trans0: cfloat; trans1: cfloat; odim0: DimT = 0;
-               odim1: DimT = 0; `method`: InterpType): Matrix 
+proc translate*(matin : AFArray; trans0: cfloat; trans1: cfloat; odim0: DimT = 0;
+               odim1: DimT = 0; `method`: InterpType): AFArray 
   {.cdecl, importcpp: "af::translate(@)", header : "arrayfire.h".}
 
-proc scale*(matin : Matrix; scale0: cfloat; scale1: cfloat; odim0: DimT = 0; odim1: DimT = 0;
-           `method`: InterpType): Matrix {.cdecl,
+proc scale*(matin : AFArray; scale0: cfloat; scale1: cfloat; odim0: DimT = 0; odim1: DimT = 0;
+           `method`: InterpType): AFArray {.cdecl,
     importcpp: "af::scale(@)", header : "arrayfire.h".}
 
-proc skew*(matin : Matrix; skew0: cfloat; skew1: cfloat; odim0: DimT = 0; odim1: DimT = 0;
-          inverse: bool = true; `method`: InterpType ): Matrix 
+proc skew*(matin : AFArray; skew0: cfloat; skew1: cfloat; odim0: DimT = 0; odim1: DimT = 0;
+          inverse: bool = true; `method`: InterpType ): AFArray 
   {.cdecl, importcpp: "af::skew(@)", header : "arrayfire.h".}
 
-proc bilateral*(matin : Matrix; spatialSigma: cfloat; chromaticSigma: cfloat;
-                isColor: bool = false): Matrix 
+proc bilateral*(matin : AFArray; spatialSigma: cfloat; chromaticSigma: cfloat;
+                isColor: bool = false): AFArray 
   {.cdecl, importcpp: "af::bilateral(@)", header : "arrayfire.h".}
 
-proc anisotropicDiffusion*(matin : Matrix; timestep: cfloat; conductance: cfloat; iterations: cuint; 
-                          fftype: FluxFuction = FluxFuction.EXPONENTIAL; diffusionKind: DiffusionEq = DiffusionEq.GRAD): Matrix 
+proc anisotropicDiffusion*(matin : AFArray; timestep: cfloat; conductance: cfloat; iterations: cuint; 
+                          fftype: FluxFuction = FluxFuction.EXPONENTIAL; diffusionKind: DiffusionEq = DiffusionEq.GRAD): AFArray 
   {.cdecl, importcpp: "af::anisotropicDiffusion(@)", header : "arrayfire.h".}
 
-proc inverseDeconv*(matin : Matrix; psf: Matrix, gamme: cfloat, algo: InverseDeconvAlgo): Matrix 
+proc inverseDeconv*(matin : AFArray; psf: AFArray, gamme: cfloat, algo: InverseDeconvAlgo): AFArray 
   {.cdecl, importcpp: "af::cainverseDeconvnny(@)", header : "arrayfire.h".}
 
-proc iterativeDeconv*(matin : Matrix; ker: Matrix, iterations: cuint, relaxFactor: cfloat, algo: InverseDeconvAlgo): Matrix 
+proc iterativeDeconv*(matin : AFArray; ker: AFArray, iterations: cuint, relaxFactor: cfloat, algo: InverseDeconvAlgo): AFArray 
   {.cdecl, importcpp: "af::iterativeDeconv(@)", header : "arrayfire.h".}
 
-proc canny*(matin : Matrix; thresholdType: CannyThreshold; lowThresholdRatio: cfloat; highThresholdRatio: cfloat; sobelWindow: cuint, isFast: bool = false;
-            isColor: bool = false): Matrix 
+proc canny*(matin : AFArray; thresholdType: CannyThreshold; lowThresholdRatio: cfloat; highThresholdRatio: cfloat; sobelWindow: cuint, isFast: bool = false;
+            isColor: bool = false): AFArray 
   {.cdecl, importcpp: "af::canny(@)", header : "arrayfire.h".}
 
-proc confidenceCC*(matin : Matrix; seeds: Matrix, radius: cuint, multiplier: cuint, iter: cint, segmentedValue: cdouble): Matrix 
+proc confidenceCC*(matin : AFArray; seeds: AFArray, radius: cuint, multiplier: cuint, iter: cint, segmentedValue: cdouble): AFArray 
   {.cdecl, importcpp: "af::confidenceCC(@)", header : "arrayfire.h".}
 
-proc histogram*(matin : Matrix; nbins: cuint; minval: cdouble; maxval: cdouble): Matrix 
+proc histogram*(matin : AFArray; nbins: cuint; minval: cdouble; maxval: cdouble): AFArray 
   {.cdecl, importcpp: "af::histogram(@)", header : "arrayfire.h".}
 
-proc histogram*(matin : Matrix; nbins: cuint): Matrix 
+proc histogram*(matin : AFArray; nbins: cuint): AFArray 
   {.cdecl, importcpp: "af::histogram(@)",header : "arrayfire.h".}
 
-proc meanShift*(matin : Matrix; spatialSigma: cfloat; chromaticSigma: cfloat;
-               iter: cuint; isColor: bool = false): Matrix 
+proc meanShift*(matin : AFArray; spatialSigma: cfloat; chromaticSigma: cfloat;
+               iter: cuint; isColor: bool = false): AFArray 
   {.cdecl, importcpp: "af::meanShift(@)", header : "arrayfire.h".}
 
-proc minfilt*(matin : Matrix; windLength: DimT = 3; windWidth: DimT = 3;
-             edgePad: BorderType ): Matrix 
+proc minfilt*(matin : AFArray; windLength: DimT = 3; windWidth: DimT = 3;
+             edgePad: BorderType ): AFArray 
   {.cdecl, importcpp: "af::minfilt(@)", header : "arrayfire.h".}
 
-proc maxfilt*(matin : Matrix; windLength: DimT = 3; windWidth: DimT = 3;
-             edgePad: BorderType ): Matrix 
+proc maxfilt*(matin : AFArray; windLength: DimT = 3; windWidth: DimT = 3;
+             edgePad: BorderType ): AFArray 
   {.cdecl, importcpp: "af::maxfilt(@)", header : "arrayfire.h".}
 
-proc dilate*(matin : Matrix; mask: Matrix): Matrix 
+proc dilate*(matin : AFArray; mask: AFArray): AFArray 
   {.cdecl, importcpp: "af::dilate(@)",header : "arrayfire.h".}
 
-proc dilate3*(matin : Matrix; mask: Matrix): Matrix 
+proc dilate3*(matin : AFArray; mask: AFArray): AFArray 
   {.cdecl, importcpp: "af::dilate3(@)", header : "arrayfire.h".}
 
-proc erode*(matin : Matrix; mask: Matrix): Matrix 
+proc erode*(matin : AFArray; mask: AFArray): AFArray 
   {.cdecl, importcpp: "af::erode(@)", header : "arrayfire.h".}
 
-proc erode3*(matin : Matrix; mask: Matrix): Matrix 
+proc erode3*(matin : AFArray; mask: AFArray): AFArray 
   {.cdecl, importcpp: "af::erode3(@)", header : "arrayfire.h".}
 
-proc regions*(matin : Matrix; connectivity: Connectivity;
-             `type`: Dtype = f32): Matrix 
+proc regions*(matin : AFArray; connectivity: Connectivity;
+             `type`: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::regions(@)", header : "arrayfire.h".}
 
-proc sobel*(dx: var Matrix; dy: var Matrix; img: Matrix; kerSize: cuint = 3) 
+proc sobel*(dx: var AFArray; dy: var AFArray; img: AFArray; kerSize: cuint = 3) 
   {.cdecl, importcpp: "af::sobel(@)", header : "arrayfire.h".}
 
-proc sobel*(img: Matrix; kerSize: cuint = 3; isFast: bool = false): Matrix 
+proc sobel*(img: AFArray; kerSize: cuint = 3; isFast: bool = false): AFArray 
   {.cdecl, importcpp: "af::sobel(@)", header : "arrayfire.h".}
 
-proc rgb2gray*(matin : Matrix; rPercent: cfloat = 0.2126;
-              gPercent: cfloat = 0.7151999999999999; bPercent: cfloat = 0.0722): Matrix 
+proc rgb2gray*(matin : AFArray; rPercent: cfloat = 0.2126;
+              gPercent: cfloat = 0.7151999999999999; bPercent: cfloat = 0.0722): AFArray 
   {.cdecl, importcpp: "af::rgb2gray(@)", header : "arrayfire.h".}
 
-proc gray2rgb*(matin : Matrix; rFactor: cfloat = 1.0; gFactor: cfloat = 1.0;
-              bFactor: cfloat = 1.0): Matrix 
+proc gray2rgb*(matin : AFArray; rFactor: cfloat = 1.0; gFactor: cfloat = 1.0;
+              bFactor: cfloat = 1.0): AFArray 
   {.cdecl, importcpp: "af::gray2rgb(@)", header : "arrayfire.h".}
 
-proc histEqual*(matin : Matrix; hist: Matrix): Matrix 
+proc histEqual*(matin : AFArray; hist: AFArray): AFArray 
   {.cdecl, importcpp: "af::histEqual(@)",header : "arrayfire.h".}
 
-proc gaussianKernel*(rows: cint; cols: cint; sigR: cdouble = 0; sigC: cdouble = 0): Matrix 
+proc gaussianKernel*(rows: cint; cols: cint; sigR: cdouble = 0; sigC: cdouble = 0): AFArray 
   {.cdecl, importcpp: "af::gaussianKernel(@)", header : "arrayfire.h".}
 
-proc hsv2rgb*(matin : Matrix): Matrix 
+proc hsv2rgb*(matin : AFArray): AFArray 
   {.cdecl, importcpp: "af::hsv2rgb(@)", header : "arrayfire.h".}
 
-proc rgb2hsv*(matin : Matrix): Matrix 
+proc rgb2hsv*(matin : AFArray): AFArray 
   {.cdecl, importcpp: "af::rgb2hsv(@)", header : "arrayfire.h".}
 
-proc colorSpace*(image: Matrix; to: CSpace; `from`: CSpace): Matrix 
+proc colorSpace*(image: AFArray; to: CSpace; `from`: CSpace): AFArray 
   {.cdecl, importcpp: "af::colorSpace(@)", header : "arrayfire.h".}
 
-proc unwrap*(matin : Matrix; wx: DimT; wy: DimT; sx: DimT; sy: DimT; px: DimT = 0; py: DimT = 0;
-            isColumn: bool = true): Matrix 
+proc unwrap*(matin : AFArray; wx: DimT; wy: DimT; sx: DimT; sy: DimT; px: DimT = 0; py: DimT = 0;
+            isColumn: bool = true): AFArray 
   {.cdecl, importcpp: "af::unwrap(@)", header : "arrayfire.h".}
 
-proc wrap*(matin : Matrix; ox: DimT; oy: DimT; wx: DimT; wy: DimT; sx: DimT; sy: DimT;
-          px: DimT = 0; py: DimT = 0; isColumn: bool = true): Matrix 
+proc wrap*(matin : AFArray; ox: DimT; oy: DimT; wx: DimT; wy: DimT; sx: DimT; sy: DimT;
+          px: DimT = 0; py: DimT = 0; isColumn: bool = true): AFArray 
   {.cdecl, importcpp: "af::wrap(@)", header : "arrayfire.h".}
 
-proc sat*(matin : Matrix): Matrix 
+proc sat*(matin : AFArray): AFArray 
   {.cdecl, importcpp: "af::sat(@)", header : "arrayfire.h".}
 
-proc ycbcr2rgb*(matin : Matrix; standard: YCCStd ): Matrix 
+proc ycbcr2rgb*(matin : AFArray; standard: YCCStd ): AFArray 
   {.cdecl, importcpp: "af::ycbcr2rgb(@)", header : "arrayfire.h".}
 
-proc rgb2ycbcr*(matin : Matrix; standard: YCCStd ): Matrix 
+proc rgb2ycbcr*(matin : AFArray; standard: YCCStd ): AFArray 
   {.cdecl, importcpp: "af::rgb2ycbcr(@)", header : "arrayfire.h".}
 
-proc moments*(`out`: ptr cdouble; matin : Matrix;
+proc moments*(`out`: ptr cdouble; matin : AFArray;
              moment: MomentType ) 
   {.cdecl,importcpp: "af::moments(@)", header : "arrayfire.h".}
 
-proc moments*(matin : Matrix; moment: MomentType ): Matrix 
+proc moments*(matin : AFArray; moment: MomentType ): AFArray 
   {.cdecl, importcpp: "af::moments(@)", header : "arrayfire.h".}
 
-proc af_svd*(u: var Matrix; s: var Matrix; vt: var Matrix; matin : Matrix) 
+proc af_svd*(u: var AFArray; s: var AFArray; vt: var AFArray; matin : AFArray) 
   {.cdecl, importcpp: "af::svd(@)", header : "arrayfire.h".}
 
-proc svd*(matin: Matrix) : tuple[u: Matrix, s: Matrix, vt: Matrix] =
-  var u : Matrix
-  var s : Matrix
-  var v : Matrix
+proc svd*(matin: AFArray) : tuple[u: AFArray, s: AFArray, vt: AFArray] =
+  var u : AFArray
+  var s : AFArray
+  var v : AFArray
   af_svd(u, s, v, matin)
   (u,s,v)
 
 
-proc svdInPlace*(u: var Matrix; s: var Matrix; vt: var Matrix; matin: var Matrix) 
+proc svdInPlace*(u: var AFArray; s: var AFArray; vt: var AFArray; matin: var AFArray) 
   {.cdecl, importcpp: "af::svdInPlace(@)", header : "arrayfire.h".}
 
-proc lu*(matout: var Matrix; pivot: var Matrix; matin : Matrix; isLapackPiv: bool = true) 
+proc lu*(matout: var AFArray; pivot: var AFArray; matin : AFArray; isLapackPiv: bool = true) 
   {.cdecl, importcpp: "af::lu(@)", header : "arrayfire.h".}
 
-proc lu*(lower: var Matrix; upper: var Matrix; pivot: var Matrix; matin : Matrix) 
+proc lu*(lower: var AFArray; upper: var AFArray; pivot: var AFArray; matin : AFArray) 
   {.cdecl, importcpp: "af::lu(@)", header : "arrayfire.h".}
 
-proc luInPlace*(pivot: var Matrix; `in`: var Matrix; isLapackPiv: bool = true) 
+proc luInPlace*(pivot: var AFArray; `in`: var AFArray; isLapackPiv: bool = true) 
   {.cdecl, importcpp: "af::luInPlace(@)", header : "arrayfire.h".}
 
-proc qr*(`out`: var Matrix; tau: var Matrix; matin : Matrix) 
+proc qr*(`out`: var AFArray; tau: var AFArray; matin : AFArray) 
   {.cdecl, importcpp: "af::qr(@)", header : "arrayfire.h".}
 
-proc qr*(q: var Matrix; r: var Matrix; tau: var Matrix; matin : Matrix) 
+proc qr*(q: var AFArray; r: var AFArray; tau: var AFArray; matin : AFArray) 
   {.cdecl, importcpp: "af::qr(@)", header : "arrayfire.h".}
 
-proc qrInPlace*(tau: var Matrix; `in`: var Matrix) 
+proc qrInPlace*(tau: var AFArray; `in`: var AFArray) 
   {.cdecl, importcpp: "af::qrInPlace(@)", header : "arrayfire.h".}
 
-proc cholesky*(`out`: var Matrix; matin : Matrix; isUpper: bool = true): cint 
+proc cholesky*(`out`: var AFArray; matin : AFArray; isUpper: bool = true): cint 
   {.cdecl, importcpp: "af::cholesky(@)", header : "arrayfire.h".}
 
-proc choleskyInPlace*(`in`: var Matrix; isUpper: bool = true): cint 
+proc choleskyInPlace*(`in`: var AFArray; isUpper: bool = true): cint 
   {.cdecl, importcpp: "af::choleskyInPlace(@)", header : "arrayfire.h".}
 
-proc solve*(a: Matrix; b: Matrix; options: MatProp ): Matrix 
+proc solve*(a: AFArray; b: AFArray; options: MatProp ): AFArray 
   {.cdecl, importcpp: "af::solve(@)", header : "arrayfire.h".}
 
-proc solveLU*(a: Matrix; piv: Matrix; b: Matrix; options: MatProp ): Matrix 
+proc solveLU*(a: AFArray; piv: AFArray; b: AFArray; options: MatProp ): AFArray 
   {.cdecl, importcpp: "af::solveLU(@)", header : "arrayfire.h".}
 
-proc inverse*(matin : Matrix; options: MatProp ): Matrix 
+proc inverse*(matin : AFArray; options: MatProp ): AFArray 
   {.cdecl, importcpp: "af::inverse(@)", header : "arrayfire.h".}
 
-proc pinverse*(matin : Matrix; options: MatProp ): Matrix 
+proc pinverse*(matin : AFArray; options: MatProp ): AFArray 
   {.cdecl, importcpp: "af::pinverse(@)", header : "arrayfire.h".}
 
-proc rank*(matin : Matrix; tol: cdouble = 1e-06, options: MatProp = MatProp.NONE): Matrix
+proc rank*(matin : AFArray; tol: cdouble = 1e-06, options: MatProp = MatProp.NONE): AFArray
   {.cdecl, importcpp: "af::rank(@)", header : "arrayfire.h".}
 
-proc det*(matin : Matrix): cdouble
+proc det*(matin : AFArray): cdouble
   {.cdecl, importcpp: "af::det<double>(@)", header : "arrayfire.h".}
 
-proc norm*(matin : Matrix; `type`: NormType ; p: cdouble = 1; q: cdouble = 1): cdouble 
+proc norm*(matin : AFArray; `type`: NormType ; p: cdouble = 1; q: cdouble = 1): cdouble 
   {.cdecl, importcpp: "af::norm(@)", header : "arrayfire.h".}
 
 proc isLAPACKAvailable*(): bool 
@@ -2087,40 +2087,40 @@ proc setDefaultRandomEngineType*(rtype: RandomEngineType)
 proc getDefaultRandomEngine*(): RandomEngine 
   {.cdecl, importcpp: "af::getDefaultRandomEngine(@)", header : "arrayfire.h".}
 
-proc randu*(dims: Dim4; ty: Dtype; r: var RandomEngine ): Matrix 
+proc randu*(dims: Dim4; ty: Dtype; r: var RandomEngine ): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randn*(dims: Dim4; ty: Dtype; r: var RandomEngine): Matrix 
+proc randn*(dims: Dim4; ty: Dtype; r: var RandomEngine): AFArray 
   {.cdecl, importcpp: "randn(@)", header : "arrayfire.h".}
 
-proc randu*(dims: Dim4; ty: Dtype = f32): Matrix 
+proc randu*(dims: Dim4; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randu*(d0: DimT; ty: Dtype = f32): Matrix 
+proc randu*(d0: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randu*(d0, d1: DimT; ty: Dtype = f32): Matrix 
+proc randu*(d0, d1: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randu*(d0, d1, d2: DimT; ty: Dtype = f32): Matrix 
+proc randu*(d0, d1, d2: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randu*(d0, d1, d2, d3: DimT; ty: Dtype = f32): Matrix 
+proc randu*(d0, d1, d2, d3: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randu(@)", header : "arrayfire.h".}
 
-proc randn*(dims: Dim4; ty: Dtype = f32): Matrix 
+proc randn*(dims: Dim4; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randn(@)", header : "arrayfire.h".}
 
-proc randn*(d0: DimT; ty: Dtype = f32): Matrix 
+proc randn*(d0: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randn(@)", header : "arrayfire.h".}
 
-proc randn*(d0, d1: DimT; ty: Dtype = f32): Matrix 
+proc randn*(d0, d1: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randn(@)", header : "arrayfire.h".}
 
-proc randn*(d0, d1, d2: DimT; ty: Dtype = f32): Matrix 
+proc randn*(d0, d1, d2: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randn(@)", header : "arrayfire.h".}
 
-proc randn*(d0, d1, d2, d3: DimT; ty: Dtype = f32): Matrix 
+proc randn*(d0, d1, d2, d3: DimT; ty: Dtype = f32): AFArray 
   {.cdecl, importcpp: "af::randn(@)", header : "arrayfire.h".}
 
 proc mseq*(length: cdouble = 0): AF_Seq 
@@ -2158,304 +2158,304 @@ proc `-`*(this: var AF_SEQ; x: cdouble; y: AF_SEQ): AF_SEQ
 proc `*`*(this: var AF_SEQ; x: cdouble; y: AF_SEQ): AF_SEQ 
   {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 
-proc get_Matrix*(this: AF_SEQ): Matrix 
+proc get_AFArray*(this: AF_SEQ): AFArray 
   {.cdecl, importcpp: "#.operator af::array()",header : "arrayfire.h".}
 
-proc get_Matrix*(this: Matrix_View): Matrix 
+proc get_AFArray*(this: AFArray_View): AFArray 
   {.cdecl, importcpp: "af::array(#)",header : "arrayfire.h".}
 
-proc approx1*(matin : Matrix; pos: Matrix; imethod: InterpType ;
-             offGrid: cfloat = 0.0): Matrix 
+proc approx1*(matin : AFArray; pos: AFArray; imethod: InterpType ;
+             offGrid: cfloat = 0.0): AFArray 
   {.cdecl, importcpp: "af::approx1(@)", header : "arrayfire.h".}
 
-proc approx2*(matin : Matrix; pos0: Matrix; pos1: Matrix;
-             `method`: InterpType ; offGrid: cfloat = 0.0): Matrix 
+proc approx2*(matin : AFArray; pos0: AFArray; pos1: AFArray;
+             `method`: InterpType ; offGrid: cfloat = 0.0): AFArray 
   {.cdecl, importcpp: "af::approx2(@)", header : "arrayfire.h".}
 
-proc fftNorm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0): Matrix 
+proc fftNorm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fftNorm(@)", header : "arrayfire.h".}
 
-proc fft2Norm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0): Matrix 
+proc fft2Norm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fft2Norm(@)", header : "arrayfire.h".}
 
-proc fft3Norm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0;
-              odim2: DimT = 0): Matrix 
+proc fft3Norm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0;
+              odim2: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fft3Norm(@)", header : "arrayfire.h".}
 
-proc fftInPlace*(`in`: var Matrix; normFactor: cdouble = 1) 
+proc fftInPlace*(`in`: var AFArray; normFactor: cdouble = 1) 
   {.cdecl, importcpp: "af::fftInPlace(@)", header : "arrayfire.h".}
 
-proc fft2InPlace*(`in`: var Matrix; normFactor: cdouble = 1) 
+proc fft2InPlace*(`in`: var AFArray; normFactor: cdouble = 1) 
   {.cdecl, importcpp: "af::fft2InPlace(@)", header : "arrayfire.h".}
 
-proc fft3InPlace*(`in`: var Matrix; normFactor: cdouble = 1) 
+proc fft3InPlace*(`in`: var AFArray; normFactor: cdouble = 1) 
   {.cdecl, importcpp: "af::fft3InPlace(@)", header : "arrayfire.h".}
 
-proc fft*(matin : Matrix; odim0: DimT = 0): Matrix 
+proc fft*(matin : AFArray; odim0: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fft(@)", header : "arrayfire.h".}
 
-proc fft2*(matin : Matrix; odim0: DimT = 0; odim1: DimT = 0): Matrix 
+proc fft2*(matin : AFArray; odim0: DimT = 0; odim1: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fft2(@)", header : "arrayfire.h".}
 
-proc fft3*(matin : Matrix; odim0: DimT = 0; odim1: DimT = 0; odim2: DimT = 0): Matrix 
+proc fft3*(matin : AFArray; odim0: DimT = 0; odim1: DimT = 0; odim2: DimT = 0): AFArray 
   {.cdecl, importcpp: "af::fft3(@)", header : "arrayfire.h".}
 
-proc dft*(matin : Matrix; normFactor: cdouble; outDims: Dim4): Matrix 
+proc dft*(matin : AFArray; normFactor: cdouble; outDims: Dim4): AFArray 
   {.cdecl, importcpp: "af::dft(@)", header : "arrayfire.h".}
 
-proc dft*(matin : Matrix; outDims: Dim4): Matrix {.cdecl, importcpp: "dft(@)",
+proc dft*(matin : AFArray; outDims: Dim4): AFArray {.cdecl, importcpp: "dft(@)",
     header : "arrayfire.h".}
 
-proc dft*(matin : Matrix): Matrix {.cdecl, importcpp: "dft(@)", header : "arrayfire.h".}
+proc dft*(matin : AFArray): AFArray {.cdecl, importcpp: "dft(@)", header : "arrayfire.h".}
 
-proc ifftNorm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0): Matrix {.cdecl,
+proc ifftNorm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0): AFArray {.cdecl,
     importcpp: "ifftNorm(@)", header : "arrayfire.h".}
 
-proc ifft2Norm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0): Matrix {.
+proc ifft2Norm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0): AFArray {.
     cdecl, importcpp: "ifft2Norm(@)", header : "arrayfire.h".}
 
-proc ifft3Norm*(matin : Matrix; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0;
-               odim2: DimT = 0): Matrix {.cdecl, importcpp: "ifft3Norm(@)",
+proc ifft3Norm*(matin : AFArray; normFactor: cdouble; odim0: DimT = 0; odim1: DimT = 0;
+               odim2: DimT = 0): AFArray {.cdecl, importcpp: "ifft3Norm(@)",
                                      header : "arrayfire.h".}
 
-proc ifftInPlace*(`in`: var Matrix; normFactor: cdouble = 1) {.cdecl,
+proc ifftInPlace*(`in`: var AFArray; normFactor: cdouble = 1) {.cdecl,
     importcpp: "ifftInPlace(@)", header : "arrayfire.h".}
 
-proc ifft2InPlace*(`in`: var Matrix; normFactor: cdouble = 1) {.cdecl,
+proc ifft2InPlace*(`in`: var AFArray; normFactor: cdouble = 1) {.cdecl,
     importcpp: "ifft2InPlace(@)", header : "arrayfire.h".}
 
-proc ifft3InPlace*(`in`: var Matrix; normFactor: cdouble = 1) {.cdecl,
+proc ifft3InPlace*(`in`: var AFArray; normFactor: cdouble = 1) {.cdecl,
     importcpp: "ifft3InPlace(@)", header : "arrayfire.h".}
 
-proc ifft*(matin : Matrix; odim0: DimT = 0): Matrix {.cdecl, importcpp: "ifft(@)",
+proc ifft*(matin : AFArray; odim0: DimT = 0): AFArray {.cdecl, importcpp: "ifft(@)",
     header : "arrayfire.h".}
 
-proc ifft2*(matin : Matrix; odim0: DimT = 0; odim1: DimT = 0): Matrix {.cdecl,
+proc ifft2*(matin : AFArray; odim0: DimT = 0; odim1: DimT = 0): AFArray {.cdecl,
     importcpp: "ifft2(@)", header : "arrayfire.h".}
 
-proc ifft3*(matin : Matrix; odim0: DimT = 0; odim1: DimT = 0; odim2: DimT = 0): Matrix {.cdecl,
+proc ifft3*(matin : AFArray; odim0: DimT = 0; odim1: DimT = 0; odim2: DimT = 0): AFArray {.cdecl,
     importcpp: "ifft3(@)", header : "arrayfire.h".}
 
-proc idft*(matin : Matrix; normFactor: cdouble; outDims: Dim4): Matrix {.cdecl,
+proc idft*(matin : AFArray; normFactor: cdouble; outDims: Dim4): AFArray {.cdecl,
     importcpp: "idft(@)", header : "arrayfire.h".}
 
-proc idft*(matin : Matrix; outDims: Dim4): Matrix {.cdecl, importcpp: "idft(@)",
+proc idft*(matin : AFArray; outDims: Dim4): AFArray {.cdecl, importcpp: "idft(@)",
     header : "arrayfire.h".}
 
-proc idft*(matin : Matrix): Matrix {.cdecl, importcpp: "idft(@)", header : "arrayfire.h".}
+proc idft*(matin : AFArray): AFArray {.cdecl, importcpp: "idft(@)", header : "arrayfire.h".}
 
-proc fftR2C*[Rank](matin : Matrix; dims: Dim4; normFactor: cdouble = 0): Matrix {.cdecl,
+proc fftR2C*[Rank](matin : AFArray; dims: Dim4; normFactor: cdouble = 0): AFArray {.cdecl,
     importcpp: "fftR2C(@)", header : "arrayfire.h".}
 
-proc fftR2C*[Rank](matin : Matrix; normFactor: cdouble = 0): Matrix {.cdecl,
+proc fftR2C*[Rank](matin : AFArray; normFactor: cdouble = 0): AFArray {.cdecl,
     importcpp: "fftR2C(@)", header : "arrayfire.h".}
 
-proc fftC2R*[Rank](matin : Matrix; isOdd: bool = false; normFactor: cdouble = 0): Matrix {.
+proc fftC2R*[Rank](matin : AFArray; isOdd: bool = false; normFactor: cdouble = 0): AFArray {.
     cdecl, importcpp: "fftC2R(@)", header : "arrayfire.h".}
 
-proc convolve*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ;
-              domain: ConvDomain = ConvDomain.AUTO): Matrix {.cdecl,
+proc convolve*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ;
+              domain: ConvDomain = ConvDomain.AUTO): AFArray {.cdecl,
     importcpp: "convolve(@)", header : "arrayfire.h".}
 
-proc convolve*(colFilter: Matrix; rowFilter: Matrix; signal: Matrix;
-              mode: ConvMode = ConvMode.DEFAULT ): Matrix {.cdecl,
+proc convolve*(colFilter: AFArray; rowFilter: AFArray; signal: AFArray;
+              mode: ConvMode = ConvMode.DEFAULT ): AFArray {.cdecl,
     importcpp: "convolve(@)", header : "arrayfire.h".}
 
-proc convolve2GradientNN*(incomming_gradient: Matrix; original_signal: Matrix; original_filter: Matrix; convolved_output: Matrix;
+proc convolve2GradientNN*(incomming_gradient: AFArray; original_signal: AFArray; original_filter: AFArray; convolved_output: AFArray;
                           stride: Dim4; padding: Dim4; dilation: Dim4; gradType: ConvGradientType){.cdecl,
                           importcpp: "convolve(@)", header : "arrayfire.h".}
 
-proc convolve1*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT;
-               domain: ConvDomain = ConvDomain.AUTO ): Matrix {.cdecl,
+proc convolve1*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT;
+               domain: ConvDomain = ConvDomain.AUTO ): AFArray {.cdecl,
     importcpp: "convolve1(@)", header : "arrayfire.h".}
 
-proc convolve2*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ;
-               domain: ConvDomain = ConvDomain.AUTO ): Matrix {.cdecl,
+proc convolve2*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ;
+               domain: ConvDomain = ConvDomain.AUTO ): AFArray {.cdecl,
     importcpp: "convolve2(@)", header : "arrayfire.h".}
 
-proc convolve3*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ;
-               domain: ConvDomain = ConvDomain.AUTO ): Matrix {.cdecl,
+proc convolve3*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ;
+               domain: ConvDomain = ConvDomain.AUTO ): AFArray {.cdecl,
     importcpp: "convolve3(@)", header : "arrayfire.h".}
 
-proc fftConvolve*(signal: Matrix; filter: Matrix; mode: ConvMode ): Matrix {.
+proc fftConvolve*(signal: AFArray; filter: AFArray; mode: ConvMode ): AFArray {.
     cdecl, importcpp: "fftConvolve(@)", header : "arrayfire.h".}
 
-proc fftConvolve1*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ): Matrix {.
+proc fftConvolve1*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ): AFArray {.
     cdecl, importcpp: "fftConvolve1(@)", header : "arrayfire.h".}
 
-proc fftConvolve2*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ): Matrix {.
+proc fftConvolve2*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ): AFArray {.
     cdecl, importcpp: "fftConvolve2(@)", header : "arrayfire.h".}
 
-proc fftConvolve3*(signal: Matrix; filter: Matrix; mode: ConvMode = ConvMode.DEFAULT ): Matrix {.
+proc fftConvolve3*(signal: AFArray; filter: AFArray; mode: ConvMode = ConvMode.DEFAULT ): AFArray {.
     cdecl, importcpp: "fftConvolve3(@)", header : "arrayfire.h".}
 
-proc fir*(b: Matrix; x: Matrix): Matrix {.cdecl, importcpp: "fir(@)", header : "arrayfire.h".}
+proc fir*(b: AFArray; x: AFArray): AFArray {.cdecl, importcpp: "fir(@)", header : "arrayfire.h".}
 
-proc iir*(b: Matrix; a: Matrix; x: Matrix): Matrix {.cdecl, importcpp: "iir(@)",
+proc iir*(b: AFArray; a: AFArray; x: AFArray): AFArray {.cdecl, importcpp: "iir(@)",
     header : "arrayfire.h".}
 
-proc medfilt*(matin : Matrix; windLength: DimT = 3; windWidth: DimT = 3;
-             edgePad: BorderType ): Matrix {.cdecl, importcpp: "medfilt(@)",
+proc medfilt*(matin : AFArray; windLength: DimT = 3; windWidth: DimT = 3;
+             edgePad: BorderType ): AFArray {.cdecl, importcpp: "medfilt(@)",
     header : "arrayfire.h".}
 
-proc medfilt1*(matin : Matrix; windWidth: DimT = 3; edgePad: BorderType ): Matrix {.
+proc medfilt1*(matin : AFArray; windWidth: DimT = 3; edgePad: BorderType ): AFArray {.
     cdecl, importcpp: "medfilt1(@)", header : "arrayfire.h".}
 
-proc medfilt2*(matin : Matrix; windLength: DimT = 3; windWidth: DimT = 3;
-              edgePad: BorderType ): Matrix {.cdecl,
+proc medfilt2*(matin : AFArray; windLength: DimT = 3; windWidth: DimT = 3;
+              edgePad: BorderType ): AFArray {.cdecl,
     importcpp: "medfilt2(@)", header : "arrayfire.h".}
 
-proc sparse*(nRows: DimT; nCols: DimT; values: Matrix; rowIdx: Matrix; colIdx: Matrix;
-            stype: Storage ): Matrix {.cdecl, importcpp: "sparse(@)",
+proc sparse*(nRows: DimT; nCols: DimT; values: AFArray; rowIdx: AFArray; colIdx: AFArray;
+            stype: Storage ): AFArray {.cdecl, importcpp: "sparse(@)",
     header : "arrayfire.h".}
 
 proc sparse*(nRows: DimT; nCols: DimT; nNZ: DimT; values: pointer; rowIdx: ptr cint;
             colIdx: ptr cint; `type`: Dtype = f32; stype: Storage ;
-            src: Source = Source.afHost): Matrix {.cdecl, importcpp: "sparse(@)", header : "arrayfire.h".}
+            src: Source = Source.afHost): AFArray {.cdecl, importcpp: "sparse(@)", header : "arrayfire.h".}
 
-proc sparse*(dense: Matrix; stype: Storage ): Matrix {.cdecl,
+proc sparse*(dense: AFArray; stype: Storage ): AFArray {.cdecl,
     importcpp: "sparse(@)", header : "arrayfire.h".}
 
-proc sparseConvertTo*(matin : Matrix; destStrorage: Storage): Matrix {.cdecl,
+proc sparseConvertTo*(matin : AFArray; destStrorage: Storage): AFArray {.cdecl,
     importcpp: "sparseConvertTo(@)", header : "arrayfire.h".}
 
-proc dense*(sparse: Matrix): Matrix {.cdecl, importcpp: "dense(@)", header : "arrayfire.h".}
+proc dense*(sparse: AFArray): AFArray {.cdecl, importcpp: "dense(@)", header : "arrayfire.h".}
 
-proc sparseGetInfo*(values: var Matrix; rowIdx: var Matrix; colIdx: var Matrix;
-                   stype: var Storage; matin : Matrix) {.cdecl,
+proc sparseGetInfo*(values: var AFArray; rowIdx: var AFArray; colIdx: var AFArray;
+                   stype: var Storage; matin : AFArray) {.cdecl,
     importcpp: "sparseGetInfo(@)", header : "arrayfire.h".}
 
-proc sparseGetValues*(matin : Matrix): Matrix {.cdecl, importcpp: "sparseGetValues(@)",
+proc sparseGetValues*(matin : AFArray): AFArray {.cdecl, importcpp: "sparseGetValues(@)",
     header : "arrayfire.h".}
 
-proc sparseGetRowIdx*(matin : Matrix): Matrix {.cdecl, importcpp: "sparseGetRowIdx(@)",
+proc sparseGetRowIdx*(matin : AFArray): AFArray {.cdecl, importcpp: "sparseGetRowIdx(@)",
     header : "arrayfire.h".}
 
-proc sparseGetColIdx*(matin : Matrix): Matrix {.cdecl, importcpp: "sparseGetColIdx(@)",
+proc sparseGetColIdx*(matin : AFArray): AFArray {.cdecl, importcpp: "sparseGetColIdx(@)",
     header : "arrayfire.h".}
 
-proc sparseGetNNZ*(matin : Matrix): DimT {.cdecl, importcpp: "sparseGetNNZ(@)",
+proc sparseGetNNZ*(matin : AFArray): DimT {.cdecl, importcpp: "sparseGetNNZ(@)",
                                      header : "arrayfire.h".}
 
-proc sparseGetStorage*(matin : Matrix): Storage {.cdecl,
+proc sparseGetStorage*(matin : AFArray): Storage {.cdecl,
     importcpp: "sparseGetStorage(@)", header : "arrayfire.h".}    
 
-proc mean*(matin : Matrix; dim: DimT ): Matrix {.cdecl, importcpp: "mean(@)",
+proc mean*(matin : AFArray; dim: DimT ): AFArray {.cdecl, importcpp: "mean(@)",
     header : "arrayfire.h".}
 
-proc mean*(matin : Matrix; weights: Matrix; dim: DimT ): Matrix {.cdecl,
+proc mean*(matin : AFArray; weights: AFArray; dim: DimT ): AFArray {.cdecl,
     importcpp: "mean(@)", header : "arrayfire.h".}
 
-proc `var`*(matin : Matrix; isbiased: bool = false; dim: DimT = - 1): Matrix {.cdecl,
+proc `var`*(matin : AFArray; isbiased: bool = false; dim: DimT = - 1): AFArray {.cdecl,
     importcpp: "var(@)", header : "arrayfire.h".}
 
-proc `var`*(matin : Matrix; weights: Matrix; dim: DimT = - 1): Matrix {.cdecl,
+proc `var`*(matin : AFArray; weights: AFArray; dim: DimT = - 1): AFArray {.cdecl,
     importcpp: "var(@)", header : "arrayfire.h".}
 
-proc topk*(values: Matrix, indices: Matrix, matin: Matrix, k: cint, dim: cint = - 1, order: TopKFunction = TopKFunction.TOPK_MAX) {.cdecl,
+proc topk*(values: AFArray, indices: AFArray, matin: AFArray, k: cint, dim: cint = - 1, order: TopKFunction = TopKFunction.TOPK_MAX) {.cdecl,
     importcpp: "topk(@)", header : "arrayfire.h".}
 
-proc stdev*(matin : Matrix; dim: DimT ): Matrix {.cdecl, importcpp: "stdev(@)",
+proc stdev*(matin : AFArray; dim: DimT ): AFArray {.cdecl, importcpp: "stdev(@)",
     header : "arrayfire.h".}
 
-proc cov*(x: Matrix; y: Matrix; isbiased: bool = false): Matrix {.cdecl,
+proc cov*(x: AFArray; y: AFArray; isbiased: bool = false): AFArray {.cdecl,
     importcpp: "cov(@)", header : "arrayfire.h".}
 
-proc median*(matin : Matrix; dim: DimT): Matrix {.cdecl, importcpp: "median(@)",
+proc median*(matin : AFArray; dim: DimT): AFArray {.cdecl, importcpp: "median(@)",
     header : "arrayfire.h".}
 
-proc mean*(matin : Matrix): cdouble 
+proc mean*(matin : AFArray): cdouble 
   {.cdecl, importcpp: "af::mean<double>(@)", header : "arrayfire.h".}
 
-proc mean*[T](matin : Matrix; weights: Matrix): T 
+proc mean*[T](matin : AFArray; weights: AFArray): T 
   {.cdecl, importcpp: "af::mean<'*0>(@)",header : "arrayfire.h".}
 
-proc `var`*[T](matin : Matrix; isbiased: bool = false): T 
+proc `var`*[T](matin : AFArray; isbiased: bool = false): T 
   {.cdecl, importcpp: "af::var<'*0>(@)",header : "arrayfire.h".}
 
-proc `var`*(matin : Matrix; weights: Matrix): cdouble
+proc `var`*(matin : AFArray; weights: AFArray): cdouble
   {.cdecl, importcpp: "var<double>(@)",header : "arrayfire.h".}
 
-proc stdev*(matin : Matrix): cdouble
+proc stdev*(matin : AFArray): cdouble
   {.cdecl, importcpp: "af::stdev<double>(@)", header : "arrayfire.h".}
 
-proc median*(matin : Matrix): cdouble
+proc median*(matin : AFArray): cdouble
   {.cdecl, importcpp: "af::median<double>(@)", header : "arrayfire.h".}
 
-proc corrcoef*(x: Matrix; y: Matrix): cdouble
+proc corrcoef*(x: AFArray; y: AFArray): cdouble
   {.cdecl, importcpp: "af::corrcoef<double>(@)",header : "arrayfire.h".}
 
-proc print*(exp: cstring; arr: Matrix) {.cdecl, importcpp: "print(@)", header : "arrayfire.h".}
+proc print*(exp: cstring; arr: AFArray) {.cdecl, importcpp: "print(@)", header : "arrayfire.h".}
 
-proc print*(exp: cstring; arr: Matrix; precision: cint) {.cdecl, importcpp: "print(@)",
+proc print*(exp: cstring; arr: AFArray; precision: cint) {.cdecl, importcpp: "print(@)",
     header : "arrayfire.h".}
 
-proc saveArray*(key: cstring; arr: Matrix; filename: cstring; append: bool = false): cint 
+proc saveArray*(key: cstring; arr: AFArray; filename: cstring; append: bool = false): cint 
   {.cdecl, importcpp: "af::saveArray(@)", header : "arrayfire.h".}
 
-proc readArray*(filename: cstring; index: cuint): Matrix 
+proc readArray*(filename: cstring; index: cuint): AFArray 
   {.cdecl,importcpp: "af::readArray(@)", header : "arrayfire.h".}
 
-proc readArray*(filename: cstring; key: cstring): Matrix 
+proc readArray*(filename: cstring; key: cstring): AFArray 
   {.cdecl, importcpp: "af::readArray(@)", header : "arrayfire.h".}
 
 proc readArrayCheck*(filename: cstring; key: cstring): cint {.cdecl,
     importcpp: "af::readArrayCheck(@)", header : "arrayfire.h".}
 
-proc toString*(output: cstringArray; exp: cstring; arr: Matrix; precision: cint = 4;
+proc toString*(output: cstringArray; exp: cstring; arr: AFArray; precision: cint = 4;
               transpose: bool = true) 
   {.cdecl, importcpp: "af::toString(@)", header : "arrayfire.h".}
 
-proc toString*(exp: cstring; arr: Matrix; precision: cint = 4; transpose: bool = true): cstring {.
+proc toString*(exp: cstring; arr: AFArray; precision: cint = 4; transpose: bool = true): cstring {.
     cdecl, importcpp: "af::toString(@)", header : "arrayfire.h".}
 
-proc exampleFunction*(matin : Matrix; param: SomeenumT): Matrix {.cdecl,
+proc exampleFunction*(matin : AFArray; param: SomeenumT): AFArray {.cdecl,
     importcpp: "exampleFunction(@)", header : "arrayfire.h".}
 
 proc getSizeOf*(`type`: Dtype): csize_t {.cdecl, importcpp: "getSizeOf(@)", header : "arrayfire.h".}
 
-proc fast*(matin : Matrix; thr: cfloat = 20.0; arcLength: cuint = 9; nonMax: bool = true;
+proc fast*(matin : AFArray; thr: cfloat = 20.0; arcLength: cuint = 9; nonMax: bool = true;
           featureRatio: cfloat = 0.05; edge: cuint = 3): Features {.cdecl,
     importcpp: "fast(@)", header : "arrayfire.h".}
 
-proc harris*(matin : Matrix; maxCorners: cuint = 500; minResponse: cfloat = 100000.0;
+proc harris*(matin : AFArray; maxCorners: cuint = 500; minResponse: cfloat = 100000.0;
             sigma: cfloat = 1.0; blockSize: cuint = 0; kThr: cfloat = 0.04): Features {.
     cdecl, importcpp: "harris(@)", header : "arrayfire.h".}
 
-proc orb*(feat: var Features; desc: var Matrix; image: Matrix; fastThr: cfloat = 20.0;
+proc orb*(feat: var Features; desc: var AFArray; image: AFArray; fastThr: cfloat = 20.0;
          maxFeat: cuint = 400; sclFctr: cfloat = 1.5; levels: cuint = 4;
          blurImg: bool = false) {.cdecl, importcpp: "orb(@)", header : "arrayfire.h".}
 
-proc sift*(feat: var Features; desc: var Matrix; matin : Matrix; nLayers: cuint = 3;
+proc sift*(feat: var Features; desc: var AFArray; matin : AFArray; nLayers: cuint = 3;
           contrastThr: cfloat = 0.04; edgeThr: cfloat = 10.0; initSigma: cfloat = 1.6;
           doubleInput: bool = true; intensityScale: cfloat = 0.00390625;
           featureRatio: cfloat = 0.05) {.cdecl, importcpp: "sift(@)", header : "arrayfire.h".}
 
-proc gloh*(feat: var Features; desc: var Matrix; matin : Matrix; nLayers: cuint = 3;
+proc gloh*(feat: var Features; desc: var AFArray; matin : AFArray; nLayers: cuint = 3;
           contrastThr: cfloat = 0.04; edgeThr: cfloat = 10.0; initSigma: cfloat = 1.6;
           doubleInput: bool = true; intensityScale: cfloat = 0.00390625;
           featureRatio: cfloat = 0.05) {.cdecl, importcpp: "gloh(@)", header : "arrayfire.h".}
 
-proc hammingMatcher*(idx: var Matrix; dist: var Matrix; query: Matrix; train: Matrix;
+proc hammingMatcher*(idx: var AFArray; dist: var AFArray; query: AFArray; train: AFArray;
                     distDim: DimT = 0; nDist: cuint = 1) {.cdecl,
     importcpp: "hammingMatcher(@)", header : "arrayfire.h".}
 
-proc nearestNeighbour*(idx: var Matrix; dist: var Matrix; query: Matrix; train: Matrix;
+proc nearestNeighbour*(idx: var AFArray; dist: var AFArray; query: AFArray; train: AFArray;
                       distDim: DimT = 0; nDist: cuint = 1; distType: MatchType ) {.
     cdecl, importcpp: "nearestNeighbour(@)", header : "arrayfire.h".}
 
-proc matchTemplate*(searchImg: Matrix; templateImg: Matrix; mType: MatchType ): Matrix {.
+proc matchTemplate*(searchImg: AFArray; templateImg: AFArray; mType: MatchType ): AFArray {.
     cdecl, importcpp: "matchTemplate(@)", header : "arrayfire.h".}
 
-proc susan*(matin : Matrix; radius: cuint = 3; diffThr: cfloat = 32.0;
+proc susan*(matin : AFArray; radius: cuint = 3; diffThr: cfloat = 32.0;
            geomThr: cfloat = 10.0; featureRatio: cfloat = 0.05; edge: cuint = 3): Features {.
     cdecl, importcpp: "susan(@)", header : "arrayfire.h".}
 
-proc dog*(matin : Matrix; radius1: cint; radius2: cint): Matrix {.cdecl,
+proc dog*(matin : AFArray; radius1: cint; radius2: cint): AFArray {.cdecl,
     importcpp: "dog(@)", header : "arrayfire.h".}
 
-proc homography*(h: var Matrix; inliers: var cint; xSrc: Matrix; ySrc: Matrix;
-                xDst: Matrix; yDst: Matrix;
+proc homography*(h: var AFArray; inliers: var cint; xSrc: AFArray; ySrc: AFArray;
+                xDst: AFArray; yDst: AFArray;
                 htype: HomographyType ; inlierThr: cfloat = 3.0;
                 iterations: cuint = 1000; otype: Dtype = f32) {.cdecl,
     importcpp: "homography(@)", header : "arrayfire.h".}  
@@ -2468,7 +2468,7 @@ proc constructindex*(idx: cint): Index {.constructor, importcpp: "index(@)",
 
 proc constructindex*(s0: AF_Seq): Index {.constructor, importcpp: "af::index(@)",
                                        header: "arrayfire.h".}
-proc constructindex*(idx0: Matrix): Index {.constructor, importcpp: "af::index(@)",
+proc constructindex*(idx0: AFArray): Index {.constructor, importcpp: "af::index(@)",
                                         header: "arrayfire.h".}
 proc constructindex*(idx0: Index): Index {.constructor, importcpp: "af::index(@)",
                                        header: "arrayfire.h".}
@@ -2478,239 +2478,239 @@ proc get*(this: Index): IndexT {.noSideEffect, importcpp: "get", header: "arrayf
 proc constructindex*(idx0: var AF_Seq): Index {.constructor, importcpp: "index(@)",
     header: "arrayfire.h".}
 
-proc constructindex*(idx0: var Matrix): Index {.constructor, importcpp: "index(@)",
+proc constructindex*(idx0: var AFArray): Index {.constructor, importcpp: "index(@)",
     header: "arrayfire.h".}
 
 
-proc lookup*(matin: Matrix; idx: Matrix; dim: cint = - 1): Matrix {.importcpp: "lookup(@)",
+proc lookup*(matin: AFArray; idx: AFArray; dim: cint = - 1): AFArray {.importcpp: "lookup(@)",
     header: "arrayfire.h".}
 
 let span* = constructindex(mseq(1,1,0))
 
 
-proc copy*(dst: var Matrix; src: Matrix; idx0: Index; idx1: Index = span;
+proc copy*(dst: var AFArray; src: AFArray; idx0: Index; idx1: Index = span;
           idx2: Index = span; idx3: Index = span) {.importcpp: "copy(@)",
     header: "arrayfire.h".}
 
 
-proc constructarrayProxy*(par: var Matrix; ssss: ptr IndexT; linear: bool = false): Matrix_View {.
+proc constructarrayProxy*(par: var AFArray; ssss: ptr IndexT; linear: bool = false): AFArray_View {.
     constructor, importcpp: "array_proxy(@)", header: "arrayfire.h".}
-proc constructarrayProxy*(other: Matrix_View): Matrix_View {.constructor,
+proc constructarrayProxy*(other: AFArray_View): AFArray_View {.constructor,
     importcpp: "array_proxy(@)", header: "arrayfire.h".}
-proc constructarrayProxy*(other: var Matrix_View): Matrix_View {.constructor,
+proc constructarrayProxy*(other: var AFArray_View): AFArray_View {.constructor,
     importcpp: "array_proxy(@)", header: "arrayfire.h".}
-proc destroyarrayProxy*(this: var Matrix_View) {.importcpp: "#.~array_proxy()",
+proc destroyarrayProxy*(this: var AFArray_View) {.importcpp: "#.~array_proxy()",
     header: "arrayfire.h".}
 
-proc toMatrix*(this: Matrix_View) 
+proc toAFArray*(this: AFArray_View) 
   {.noSideEffect, importcpp: "array", header: "arrayfire.h".}
 
-proc toMatrix*(this: var Matrix_View) 
+proc toAFArray*(this: var AFArray_View) 
   {.importcpp: "array", header: "arrayfire.h".}
 
 
-proc assign*(this: var Matrix_View; a: Matrix) {.importcpp: "#.operator=(@)", header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: cdouble) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: cfloat) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: cint) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: cuint) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: bool) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: char) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: clong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: culong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: clonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var Matrix_View; a: culonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: AFArray) {.importcpp: "#.operator=(@)", header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: cdouble) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: cfloat) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: cint) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: cuint) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: bool) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: char) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: clong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: culong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: clonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+proc assign*(this: var AFArray_View; a: culonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 
 
-proc `+=`*(this: var Matrix_View; a: Matrix) 
+proc `+=`*(this: var AFArray_View; a: AFArray) 
   {.importcpp: "(# += #)", header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: cdouble) 
+proc `+=`*(this: var AFArray_View; a: cdouble) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: cfloat) 
+proc `+=`*(this: var AFArray_View; a: cfloat) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: cint) 
+proc `+=`*(this: var AFArray_View; a: cint) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: cuint) 
+proc `+=`*(this: var AFArray_View; a: cuint) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: bool) 
+proc `+=`*(this: var AFArray_View; a: bool) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: char) 
+proc `+=`*(this: var AFArray_View; a: char) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: clong) 
+proc `+=`*(this: var AFArray_View; a: clong) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: culong) 
+proc `+=`*(this: var AFArray_View; a: culong) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var Matrix_View; a: clonglong) {.importcpp: "(# += #)",
+proc `+=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# += #)",
     header: "arrayfire.h".}
-proc `+=`*(this: var Matrix_View; a: culonglong) {.importcpp: "(# += #)",
+proc `+=`*(this: var AFArray_View; a: culonglong) {.importcpp: "(# += #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: Matrix_View) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: AFArray_View) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: cdouble) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: cdouble) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: cfloat) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: cfloat) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: cint) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: cint) {.importcpp: "(# -= #)",
                                        header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: cuint) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: cuint) {.importcpp: "(# -= #)",
                                         header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: bool) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: bool) {.importcpp: "(# -= #)",
                                        header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: char) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: char) {.importcpp: "(# -= #)",
                                        header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: clong) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: clong) {.importcpp: "(# -= #)",
                                         header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: culong) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: culong) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: clonglong) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `-=`*(this: var Matrix_View; a: culonglong) {.importcpp: "(# -= #)",
+proc `-=`*(this: var AFArray_View; a: culonglong) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: Matrix_View) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: AFArray_View) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: cdouble) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: cdouble) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: cfloat) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: cfloat) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: cint) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: cint) {.importcpp: "(# *= #)",
                                        header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: cuint) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: cuint) {.importcpp: "(# *= #)",
                                         header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: bool) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: bool) {.importcpp: "(# *= #)",
                                        header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: char) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: char) {.importcpp: "(# *= #)",
                                        header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: clong) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: clong) {.importcpp: "(# *= #)",
                                         header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: culong) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: culong) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: clonglong) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `*=`*(this: var Matrix_View; a: culonglong) {.importcpp: "(# *= #)",
+proc `*=`*(this: var AFArray_View; a: culonglong) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: Matrix_View) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: AFArray_View) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: cdouble) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: cdouble) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: cfloat) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: cfloat) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: cint) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: cint) {.importcpp: "(# /= #)",
                                        header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: cuint) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: cuint) {.importcpp: "(# /= #)",
                                         header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: bool) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: bool) {.importcpp: "(# /= #)",
                                        header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: char) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: char) {.importcpp: "(# /= #)",
                                        header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: clong) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: clong) {.importcpp: "(# /= #)",
                                         header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: culong) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: culong) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: clonglong) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc `/=`*(this: var Matrix_View; a: culonglong) {.importcpp: "(# /= #)",
+proc `/=`*(this: var AFArray_View; a: culonglong) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
-proc get*(this: var Matrix_View): array {.importcpp: "get", header: "arrayfire.h".}
+proc get*(this: var AFArray_View): array {.importcpp: "get", header: "arrayfire.h".}
 
-proc get*(this: Matrix_View): array {.noSideEffect, importcpp: "get",
+proc get*(this: AFArray_View): array {.noSideEffect, importcpp: "get",
                                   header: "arrayfire.h".}
-proc dims*[M: Matrix | Matrix_View](this: M): Dim4 
+proc dims*[M: AFArray | AFArray_View](this: M): Dim4 
   {.noSideEffect, importcpp: "dims",header: "arrayfire.h".}
 
-proc dims*[M: Matrix | Matrix_View](this: M; dim: cuint): DimT 
+proc dims*[M: AFArray | AFArray_View](this: M; dim: cuint): DimT 
   {.noSideEffect, importcpp: "dims",header: "arrayfire.h".}
 
-proc msum*(matin: Matrix; dim: cint = -1 ): Matrix 
+proc msum*(matin: AFArray; dim: cint = -1 ): AFArray 
   {.importcpp: "af::sum(@)",header: "arrayfire.h".}
 
-proc msum*(matin: Matrix; dim: cint; nanval: cdouble): Matrix 
+proc msum*(matin: AFArray; dim: cint; nanval: cdouble): AFArray 
   {.importcpp: "af::sum(@)",header: "arrayfire.h".}
 
-proc sumByKey*(keys_out: Matrix, vals_out: Matrix, keys: Matrix, vals: Matrix, dim: cint = -1 ) 
+proc sumByKey*(keys_out: AFArray, vals_out: AFArray, keys: AFArray, vals: AFArray, dim: cint = -1 ) 
   {.importcpp: "sumByKey(@)",header: "arrayfire.h".}
 
-proc product*(matin: Matrix; dim: cint = - 1): Matrix 
+proc product*(matin: AFArray; dim: cint = - 1): AFArray 
   {.importcpp: "af::product(@)",header: "arrayfire.h".}
 
-proc productByKey*(keys_out: Matrix, vals_out : Matrix, keys: Matrix, vals: Matrix, dims: cint = -1) 
+proc productByKey*(keys_out: AFArray, vals_out : AFArray, keys: AFArray, vals: AFArray, dims: cint = -1) 
   {.importcpp: "productByKey(@)",header: "arrayfire.h".}  
 
-proc product*(matin: Matrix; dim: cint; nanval: cdouble): Matrix 
+proc product*(matin: AFArray; dim: cint; nanval: cdouble): AFArray 
   {.importcpp: "af::product(@)", header: "arrayfire.h".}
-proc mmin*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::min(@)",
+proc mmin*(matin: AFArray; dim: cint = - 1): AFArray {.importcpp: "af::min(@)",
     header: "arrayfire.h".}
 
-proc maxByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "maxByKey(@)",
+proc maxByKey*(keys_out: AFArray; vals_out: AFArray, keys: AFArray, vals: AFArray; dim: cint = - 1) {.importcpp: "maxByKey(@)",
     header: "arrayfire.h".}
 
-proc minByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "minByKey(@)",
+proc minByKey*(keys_out: AFArray; vals_out: AFArray, keys: AFArray, vals: AFArray; dim: cint = - 1) {.importcpp: "minByKey(@)",
     header: "arrayfire.h".}
 
-proc mmax*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::max(@)",
+proc mmax*(matin: AFArray; dim: cint = - 1): AFArray {.importcpp: "af::max(@)",
     header: "arrayfire.h".}
 
-proc allTrue*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::allTrue(@)",
+proc allTrue*(matin: AFArray; dim: cint = - 1): AFArray {.importcpp: "af::allTrue(@)",
     header: "arrayfire.h".}
 
-proc allTrueByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "allTrueByKey(@)",
+proc allTrueByKey*(keys_out: AFArray; vals_out: AFArray, keys: AFArray, vals: AFArray; dim: cint = - 1) {.importcpp: "allTrueByKey(@)",
     header: "arrayfire.h".}
 
-proc anyTrue*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::anyTrue(@)",
+proc anyTrue*(matin: AFArray; dim: cint = - 1): AFArray {.importcpp: "af::anyTrue(@)",
     header: "arrayfire.h".}
 
-proc anyTrueByKey*(keys_out: Matrix; vals_out: Matrix, keys: Matrix, vals: Matrix; dim: cint = - 1) {.importcpp: "anyTrueByKey(@)",
+proc anyTrueByKey*(keys_out: AFArray; vals_out: AFArray, keys: AFArray, vals: AFArray; dim: cint = - 1) {.importcpp: "anyTrueByKey(@)",
     header: "arrayfire.h".}
 
-proc count*(matin: Matrix; dim: cint = - 1): Matrix {.importcpp: "af::count(@)",
+proc count*(matin: AFArray; dim: cint = - 1): AFArray {.importcpp: "af::count(@)",
     header: "arrayfire.h".}
 
-proc countByKey*(keys_out: var Matrix; vals_out: var Matrix; keys: Matrix, vals: Matrix) {.importcpp: "countByKey(@)",
+proc countByKey*(keys_out: var AFArray; vals_out: var AFArray; keys: AFArray, vals: AFArray) {.importcpp: "countByKey(@)",
     header: "arrayfire.h".}
 
 proc af_sum_all(real : ptr[cdouble], imag : ptr[cdouble], carray : AF_Array_Handle) : Err 
     {.importcpp: "af_sum_all(@)",header: "arrayfire.h".}
 
-proc s_native_sum*(matin: Matrix) : tuple[real: float, imag: float] =
+proc s_native_sum*(matin: AFArray) : tuple[real: float, imag: float] =
   var real : cdouble = 0
   var imag : cdouble = 0
   discard af_sum_all(addr real, addr imag, matin.get())
   (real,imag)
 
-proc sum_as_int*(matin: Matrix) : int =
+proc sum_as_int*(matin: AFArray) : int =
   int(s_native_sum(matin)[0])
 
-proc sum_as_float*(matin: Matrix) : float =
+proc sum_as_float*(matin: AFArray) : float =
   float(s_native_sum(matin)[0])
 
-proc sum_as_complex*(matin: Matrix) : Complex64 =
+proc sum_as_complex*(matin: AFArray) : Complex64 =
   var (real,imag) = s_native_sum(matin)
   complex64(real,imag)
 
 proc af_product_all(real : ptr[cdouble], imag : ptr[cdouble], carray : AF_Array_Handle) : Err 
     {.importcpp: "af_product_all(@)",header: "arrayfire.h".}
 
-proc s_native_product*(matin: Matrix) : tuple[real: float, imag: float] =
+proc s_native_product*(matin: AFArray) : tuple[real: float, imag: float] =
   var real : cdouble = 0
   var imag : cdouble = 0
   discard af_product_all(addr real, addr imag, matin.get())
   (real,imag)
 
-proc product_as_int*(matin: Matrix) : int =
+proc product_as_int*(matin: AFArray) : int =
   int(s_native_product(matin)[0])
 
-proc product_as_float*(matin: Matrix) : float =
+proc product_as_float*(matin: AFArray) : float =
   float(s_native_product(matin)[0])
 
-proc product_as_complex*(matin: Matrix) : Complex64 =
+proc product_as_complex*(matin: AFArray) : Complex64 =
   var (real,imag) = s_native_product(matin)
   complex64(real,imag)
 
@@ -2718,19 +2718,19 @@ proc product_as_complex*(matin: Matrix) : Complex64 =
 proc af_min_all(real : ptr[cdouble], imag : ptr[cdouble], carray : AF_Array_Handle) : Err 
     {.importcpp: "af_min_all(@)",header: "arrayfire.h".}
 
-proc s_native_min*(matin: Matrix) : tuple[real: float, imag: float] =
+proc s_native_min*(matin: AFArray) : tuple[real: float, imag: float] =
   var real : cdouble = 0
   var imag : cdouble = 0
   discard af_min_all(addr real, addr imag, matin.get())
   (real,imag)
 
-proc min_as_int*(matin: Matrix) : int =
+proc min_as_int*(matin: AFArray) : int =
   int(s_native_min(matin)[0])
 
-proc min_as_float*(matin: Matrix) : float =
+proc min_as_float*(matin: AFArray) : float =
   float(s_native_min(matin)[0])
 
-proc min_as_complex*(matin: Matrix) : Complex64 =
+proc min_as_complex*(matin: AFArray) : Complex64 =
   var (real,imag) = s_native_min(matin)
   complex64(real,imag)
 
@@ -2738,80 +2738,80 @@ proc min_as_complex*(matin: Matrix) : Complex64 =
 proc af_max_all(real : ptr[cdouble], imag : ptr[cdouble], carray : AF_Array_Handle) : Err 
     {.importcpp: "af_max_all(@)",header: "arrayfire.h".}
 
-proc s_native_max*(matin: Matrix) : tuple[real: float, imag: float] =
+proc s_native_max*(matin: AFArray) : tuple[real: float, imag: float] =
   var real : cdouble = 0
   var imag : cdouble = 0
   discard af_max_all(addr real, addr imag, matin.get())
   (real,imag)
 
-proc max_as_int*(matin: Matrix) : int =
+proc max_as_int*(matin: AFArray) : int =
   int(s_native_max(matin)[0])
 
-proc max_as_float*(matin: Matrix) : float =
+proc max_as_float*(matin: AFArray) : float =
   float(s_native_max(matin)[0])
 
-proc max_as_complex*(matin: Matrix) : Complex64 =
+proc max_as_complex*(matin: AFArray) : Complex64 =
   var (real,imag) = s_native_max(matin)
   complex64(real,imag)
 
 
-proc s_allTrue*(matin: Matrix): bool
+proc s_allTrue*(matin: AFArray): bool
   {.importcpp: "af::allTrue<bool>(@)", header: "arrayfire.h".}
 
-proc s_anyTrue*(matin: Matrix): bool
+proc s_anyTrue*(matin: AFArray): bool
   {.importcpp: "af::anyTrue<bool>(@)", header: "arrayfire.h".}
 
-proc count*(matin: Matrix): cuint
+proc count*(matin: AFArray): cuint
   {.importcpp: "af::count<uint>(@)", header: "arrayfire.h".}
 
-proc min*(val: var Matrix; idx: var Matrix; matin: Matrix; dim: cint = - 1) 
+proc min*(val: var AFArray; idx: var AFArray; matin: AFArray; dim: cint = - 1) 
   {.importcpp: "af::min(@)", header: "arrayfire.h".}
 
-proc max*(val: var Matrix; idx: var Matrix; matin: Matrix; dim: cint = - 1) 
+proc max*(val: var AFArray; idx: var AFArray; matin: AFArray; dim: cint = - 1) 
   {.importcpp: "af::max(@)", header: "arrayfire.h".}
 
-proc min*[T](val: ptr T; idx: ptr cuint; matin: Matrix) 
+proc min*[T](val: ptr T; idx: ptr cuint; matin: AFArray) 
   {.importcpp: "af::min(@)",header: "arrayfire.h".}
 
-proc max*[T](val: ptr T; idx: ptr cuint; matin: Matrix) 
+proc max*[T](val: ptr T; idx: ptr cuint; matin: AFArray) 
   {.importcpp: "af::max(@)",header: "arrayfire.h".}
 
-proc accum*(matin: Matrix; dim: cint = 0): Matrix 
+proc accum*(matin: AFArray; dim: cint = 0): AFArray 
   {.importcpp: "af::accum(@)",header: "arrayfire.h".}
 
-proc scan*(matin: Matrix; dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): Matrix 
+proc scan*(matin: AFArray; dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): AFArray 
   {.importcpp: "af::scan(@)",header: "arrayfire.h".}
 
-proc scanByKey*(key: Matrix, matin: Matrix, dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): Matrix 
+proc scanByKey*(key: AFArray, matin: AFArray, dim: cint = 0, op: BinaryOp = BinaryOp.BINARY_ADD, inclusiveScan: bool = true): AFArray 
   {.importcpp: "af::scanByKey(@)",header: "arrayfire.h".}
 
-proc where*(matin: Matrix): Matrix 
+proc where*(matin: AFArray): AFArray 
   {.importcpp: "af::where(@)", header: "arrayfire.h".}
 
-proc diff1*(matin: Matrix; dim: cint = 0): Matrix 
+proc diff1*(matin: AFArray; dim: cint = 0): AFArray 
   {.importcpp: "af::diff1(@)",header: "arrayfire.h".}
 
-proc diff2*(matin: Matrix; dim: cint = 0): Matrix 
+proc diff2*(matin: AFArray; dim: cint = 0): AFArray 
   {.importcpp: "af::diff2(@)",header: "arrayfire.h".}
 
-proc sort*(matin: Matrix; dim: cuint = 0; isAscending: bool = true): Matrix 
+proc sort*(matin: AFArray; dim: cuint = 0; isAscending: bool = true): AFArray 
   {.importcpp: "af::sort(@)", header: "arrayfire.h".}
 
-proc sort*(`out`: var Matrix; indices: var Matrix; matin: Matrix; dim: cuint = 0;
+proc sort*(`out`: var AFArray; indices: var AFArray; matin: AFArray; dim: cuint = 0;
           isAscending: bool = true) 
   {.importcpp: "af::sort(@)", header: "arrayfire.h".}
 
-proc sortByKeys*(outKeys: var Matrix; outValues: var Matrix; keys: Matrix; values: Matrix;
+proc sortByKeys*(outKeys: var AFArray; outValues: var AFArray; keys: AFArray; values: AFArray;
           dim: cuint = 0; isAscending: bool = true) 
   {.importcpp: "sortByKeys(@)",header: "arrayfire.h".}
 
-proc setUnique*(matin: Matrix; isSorted: bool = false): Matrix 
+proc setUnique*(matin: AFArray; isSorted: bool = false): AFArray 
   {.importcpp: "af::setUnique(@)", header: "arrayfire.h".}
 
-proc setUnion*(first: Matrix; second: Matrix; isUnique: bool = false): Matrix 
+proc setUnion*(first: AFArray; second: AFArray; isUnique: bool = false): AFArray 
   {.importcpp: "af::setUnion(@)", header: "arrayfire.h".}
 
-proc setIntersect*(first: Matrix; second: Matrix; isUnique: bool = false): Matrix 
+proc setIntersect*(first: AFArray; second: AFArray; isUnique: bool = false): AFArray 
   {.importcpp: "af::setIntersect(@)", header: "arrayfire.h".}    
 
 proc af_timeit*(fn: proc ()): cdouble {.importcpp: "af::timeit(@)", header: "arrayfire.h".}
@@ -2870,9 +2870,9 @@ proc get_DType_size*(at:DType) : int =
 
 let iend* : cint = -1
 
-converter toMatrix*(s: AF_SEQ) : Matrix = s.get_Matrix()
+converter toAFArray*(s: AF_SEQ) : AFArray = s.get_AFArray()
 
-converter toMatrix*(mv: Matrix_View) : Matrix = mv.get_Matrix()
+converter toAFArray*(mv: AFArray_View) : AFArray = mv.get_AFArray()
 
 converter toCuint*(d: DimT) : cuint = cuint(d)
 
@@ -2887,50 +2887,50 @@ proc copy_array_to_c[T](data:openarray[T]) : pointer =
     var target_ptr=cast[ptr T](cast[int](result) + (i * sizeof(T)))
     target_ptr[]=data[i]
 
-proc matrix*[T](dims : Dim4, data : openarray[T]) : Matrix =
+proc afa*[T](dims : Dim4, data : openarray[T]) : AFArray =
   when (T is int): 
     var cc = newSeq[int32]()
     for i in data: 
       cc.add(int32(i))
     let cdata = copy_array_to_c(cc)
-    result = matrix[int32](dims,cast[ptr int32](cdata))
+    result = afa[int32](dims,cast[ptr int32](cdata))
   else:  
     let cdata = copy_array_to_c(data)
-    result = matrix[T](dims,cast[ptr T](cdata))
+    result = afa[T](dims,cast[ptr T](cdata))
   dealloc(cdata)
 
-proc matrix*[T](dims : Dim4, data : openarray[T], matrix_type : DType) : Matrix =
-  let tmp = matrix(dims,data)
-  tmp.`as`(matrix_type)
+proc afa*[T](dims : Dim4, data : openarray[T], AFArray_type : DType) : AFArray =
+  let tmp = afa(dims,data)
+  tmp.`as`(AFArray_type)
 
-proc matrix*[T](dim0 : DimT, data : openarray[T]) : Matrix =
-  matrix(dim4(dim0),data)
+proc afa*[T](dim0 : DimT, data : openarray[T]) : AFArray =
+  afa(dim4(dim0),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, data : openarray[T]) : Matrix =
-  matrix(dim4(dim0,dim1),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, data : openarray[T]) : AFArray =
+  afa(dim4(dim0,dim1),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : openarray[T]) : Matrix =
-  matrix(dim4(dim0,dim1,dim2),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : openarray[T]) : AFArray =
+  afa(dim4(dim0,dim1,dim2),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : openarray[T]) : Matrix =
-  matrix(dim4(dim0,dim1,dim2,dim3),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : openarray[T]) : AFArray =
+  afa(dim4(dim0,dim1,dim2,dim3),data)
 
-proc matrix*[T](dim0 : DimT, data : openarray[T], matrix_type : DType) : Matrix =
-  matrix(dim4(dim0),data,matrix_type)
+proc afa*[T](dim0 : DimT, data : openarray[T], AFArray_type : DType) : AFArray =
+  afa(dim4(dim0),data,AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, data : openarray[T], matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1),data,matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, data : openarray[T], AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1),data,AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : openarray[T], 
-    matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1,dim2),data, matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : openarray[T], 
+    AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1,dim2),data, AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : openarray[T], 
-    matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1,dim2,dim3),data, matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : openarray[T], 
+    AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1,dim2,dim3),data, AFArray_type)
 
 
-proc matrix*[T](dims : Dim4, slice : Slice[T]) : Matrix =
+proc afa*[T](dims : Dim4, slice : Slice[T]) : AFArray =
   var data: seq[int] = @[]
   for i in slice.a..slice.b:
     data.add(i)
@@ -2939,53 +2939,53 @@ proc matrix*[T](dims : Dim4, slice : Slice[T]) : Matrix =
     for i in data: 
       cc.add(int32(i))
     let cdata = copy_array_to_c(cc)
-    result = matrix[int32](dims,cast[ptr int32](cdata), src=Source.afHost)
+    result = afa[int32](dims,cast[ptr int32](cdata), src=Source.afHost)
   else:
     let cdata = copy_array_to_c(data)
-    result = matrix[T](dims,cast[ptr T](cdata), src=Source.afHost)
+    result = afa[T](dims,cast[ptr T](cdata), src=Source.afHost)
   dealloc(cdata)
 
 
-proc matrix*[T](dims : Dim4, slice : Slice[T], matrix_type : DType) : Matrix =
-  let tmp = matrix(dims,slice)
-  tmp.`as`(matrix_type)
+proc afa*[T](dims : Dim4, slice : Slice[T], AFArray_type : DType) : AFArray =
+  let tmp = afa(dims,slice)
+  tmp.`as`(AFArray_type)
 
-proc matrix*[T](dim0 : DimT, data : Slice[T]) : Matrix =
-  matrix(dim4(dim0),data)
+proc afa*[T](dim0 : DimT, data : Slice[T]) : AFArray =
+  afa(dim4(dim0),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, data : Slice[T]) : Matrix =
-  matrix(dim4(dim0,dim1),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, data : Slice[T]) : AFArray =
+  afa(dim4(dim0,dim1),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : Slice[T]) : Matrix =
-  matrix(dim4(dim0,dim1,dim2),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : Slice[T]) : AFArray =
+  afa(dim4(dim0,dim1,dim2),data)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : Slice[T]) : Matrix =
-  matrix(dim4(dim0,dim1,dim2,dim3),data)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : Slice[T]) : AFArray =
+  afa(dim4(dim0,dim1,dim2,dim3),data)
 
-proc matrix*[T](dim0 : DimT, data : Slice[T], matrix_type : DType) : Matrix =
-  matrix(dim4(dim0),data,matrix_type)
+proc afa*[T](dim0 : DimT, data : Slice[T], AFArray_type : DType) : AFArray =
+  afa(dim4(dim0),data,AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, data : Slice[T], matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1),data,matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, data : Slice[T], AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1),data,AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : Slice[T], 
-    matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1,dim2),data, matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, data : Slice[T], 
+    AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1,dim2),data, AFArray_type)
 
-proc matrix*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : Slice[T], 
-    matrix_type : DType) : Matrix =
-  matrix(dim4(dim0,dim1,dim2,dim3),data, matrix_type)
+proc afa*[T](dim0 : DimT, dim1 : DimT, dim2 : DimT, dim3 : DimT, data : Slice[T], 
+    AFArray_type : DType) : AFArray =
+  afa(dim4(dim0,dim1,dim2,dim3),data, AFArray_type)
 
-proc ndims*(m: Matrix) : DimT =
+proc ndims*(m: AFArray) : DimT =
   m.dims.ndims
 
-proc `$`*(m: Matrix) : string =
+proc `$`*(m: AFArray) : string =
   result = $toString("",m)
 
-proc randu*(dims: openarray[int],ty: Dtype = f32) : Matrix =
+proc randu*(dims: openarray[int],ty: Dtype = f32) : AFArray =
   randu(dim4s(dims),ty)
 
-proc randn*(dims: openarray[int],ty: Dtype = f32) : Matrix =
+proc randn*(dims: openarray[int],ty: Dtype = f32) : AFArray =
   randn(dim4s(dims),ty)
 
 proc mseq*[T1:int | float | int32 | int64](last: T1) : AF_Seq = 
@@ -3016,71 +3016,71 @@ proc `$`*(m: AF_Seq) : string =
   let vals = m.getContent
   "AF_Seq[from: $1, until $2, step: $3]"%[$vals[0],$vals[1],$vals[2]]
 
-proc `[]`*[I: int | int64 | AF_Seq | Matrix | Matrix_View | Index,  
-           M: Matrix | Matrix_View](m: M, i: I) : Matrix_View 
+proc `[]`*[I: int | int64 | AF_Seq | AFArray | AFArray_View | Index,  
+           M: AFArray | AFArray_View](m: M, i: I) : AFArray_View 
   {.importcpp: "#(#)", header: "arrayfire.h".}
 
-proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index, 
-          I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-          M: Matrix | Matrix_View](m: M, i1: I1, i2 : I2) : Matrix_View 
+proc `[]`*[I1: int | int64 | AF_Seq | AFArray | AFArray_View | Index, 
+          I2: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+          M: AFArray | AFArray_View](m: M, i1: I1, i2 : I2) : AFArray_View 
   {.importcpp: "#(@)", header: "arrayfire.h".}
 
-proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           I3: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           M: Matrix | Matrix_View
-           ](m: M, idx1: I1, idx2 : I2, idx3 : I3) : Matrix_View =
-  {.importcpp: "#(@)", header: "arrayfire.h".}
-
-
-proc `[]`*[I1: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           I2: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           I3: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           I4: int | int64 | AF_Seq | Matrix | Matrix_View | Index,
-           M: Matrix | Matrix_View
-           ](m: M, idx1: I1, idx2 : I2, idx3 : I3, idx4 : I4 ) : Matrix_View =
+proc `[]`*[I1: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           I2: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           I3: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           M: AFArray | AFArray_View
+           ](m: M, idx1: I1, idx2 : I2, idx3 : I3) : AFArray_View =
   {.importcpp: "#(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]`*[I1: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           I2: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           I3: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           I4: int | int64 | AF_Seq | AFArray | AFArray_View | Index,
+           M: AFArray | AFArray_View
+           ](m: M, idx1: I1, idx2 : I2, idx3 : I3, idx4 : I4 ) : AFArray_View =
+  {.importcpp: "#(@)", header: "arrayfire.h".}
+
+
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
-            M: Matrix | Matrix_View          
+              culonglong | char | bool | AFArray | AFArray_View | AFArray_View,
+            M: AFArray | AFArray_View          
   ](this: var M; idx1: I1, val: V) 
   {.importcpp: "#(#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I2: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
-            M: Matrix | Matrix_View
+              culonglong | char | bool | AFArray | AFArray_View | AFArray_View,
+            M: AFArray | AFArray_View
   ](this: var M; idx1: I1, idx2 : I2, val: V) 
   {.importcpp: "#(#,#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I3: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I2: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I3: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
-            M: Matrix | Matrix_View
+              culonglong | char | bool | AFArray | AFArray_View | AFArray_View,
+            M: AFArray | AFArray_View
   ](this: var M; idx1: I1, idx2 : I2, idx3 : I3, val: V) 
   {.importcpp: "#(#,#,#).operator=(@)", header: "arrayfire.h".}
 
 
-proc `[]=`*[I1: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I2: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I3: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
-            I4: int | int64 | AF_Seq | Index | Matrix | Matrix_View, 
+proc `[]=`*[I1: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I2: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I3: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
+            I4: int | int64 | AF_Seq | Index | AFArray | AFArray_View, 
             V:cdouble | cfloat | cint | cuint | clong | culong | clonglong | 
-              culonglong | char | bool | Matrix | Matrix_View | Matrix_View,
-            M: Matrix | Matrix_View
+              culonglong | char | bool | AFArray | AFArray_View | AFArray_View,
+            M: AFArray | AFArray_View
   ](this: var M; idx1: I1, idx2 : I2, idx3 : I3, idx4 : I4, val: V) 
   {.importcpp: "#(#,#,#,#).operator=(@)", header: "arrayfire.h".}
 
 
-proc len*(m: Matrix) : int =
+proc len*(m: AFArray) : int =
   int(m.elements())
 
 
@@ -3133,7 +3133,7 @@ proc set_backend_preferred*(preferred:seq[Backend] =
       break
 
 
-proc to_seq_typed[S,T](a : Matrix, count: int, s: typedesc[S], t: typedesc[T] ) : seq[T] =
+proc to_seq_typed[S,T](a : AFArray, count: int, s: typedesc[S], t: typedesc[T] ) : seq[T] =
   result=newSeq[T]()
   let dtype=a.dtype
   let c_item_size = get_DType_size(dtype)
@@ -3164,9 +3164,9 @@ proc to_seq_typed[S,T](a : Matrix, count: int, s: typedesc[S], t: typedesc[T] ) 
 
   dealloc(cdata)
 
-proc to_seq*[T](m: Matrix, t: typedesc[T], count: int = -1) : seq[T] =
+proc to_seq*[T](m: AFArray, t: typedesc[T], count: int = -1) : seq[T] =
   ##[
-  Get the all elements of a matrix as a sequence of type T defined
+  Get the all elements of a AFArray as a sequence of type T defined
   ]##
   case m.dtype
     of DType.f32 : to_seq_typed(m,count,float32,T)
@@ -3182,5 +3182,5 @@ proc to_seq*[T](m: Matrix, t: typedesc[T], count: int = -1) : seq[T] =
     of DType.s16 : to_seq_typed(m,count,int16,T)
     of DType.u16 : to_seq_typed(m,count,uint16,T)
 
-proc first_as*[T](m: Matrix, t: typedesc[T]) : T =
+proc first_as*[T](m: AFArray, t: typedesc[T]) : T =
   m.to_seq(t,1)[0]

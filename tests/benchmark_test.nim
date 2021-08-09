@@ -2,7 +2,6 @@ import unittest
 import strutils
 import ArrayFireNim
 import math
-import os
 
 
 suite "benchmarks":
