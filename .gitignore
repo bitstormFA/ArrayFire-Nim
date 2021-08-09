@@ -9,3 +9,9 @@ include/
 nakefile
 
 
+tests/benchmark_test
+tests/computer_vision_test
+tests/getting_started_test
+tests/graphics_test
+tests/lin_algebra_test
+tests/megatest

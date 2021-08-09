@@ -2,13 +2,14 @@
 
 ArrayFireNim is a [Nim](http://www.nim-lang.org) wrapper for [Arrayfire](https://github.com/arrayfire/arrayfire).
 
-It enables *very fast* matrix operations on different backends (CPU, OpenCL, CUDA) 
+It enables *very fast* AFArray operations on different backends (CPU, OpenCL, CUDA) 
 
 Compilation requires the C++ backend of nim (compile with cpp option)
 
 The wrapper is using the unified backend making it is possible to switch backends at runtime.
 
 ## Please Note
+
 
   ArrayFire-Nim is not affiliated with or endorsed by ArrayFire. The ArrayFire literal 
   mark is used under a limited license granted by ArrayFire the trademark holder 
@@ -21,9 +22,9 @@ The wrapper has been generated with [c2nim](https://github.com/nim-lang/c2nim)  
 
 The main differences from the C++ api are:
 
-* `array` has been renamed to `Matrix` to avoid conflicts with the Nim `array` type
+* `array` has been renamed to `AFArray` to avoid conflicts with the Nim `array` type
 
-* `array_proxy` has been renamed to `Matrix_View`
+* `array_proxy` has been renamed to `AFArray_View`
 
 * `seq` has been renamed to `AF_Seq` to avoid conflicts with the Nim `seq` type
 
@@ -49,10 +50,8 @@ The setBackend proc works but on program exit a segmentation violation will be r
 
 ### Current Status
 
-All functions from the c++ api should have been wrapped but not all have been tested.
+Most functions from the c++ api should have been wrapped but not all have been tested.
 The wrapper is already well usable but has not been optimized.
-
-The current version is 0.1
 
 All tests have been performed on Arch Linux but with the basic libraries installed all common linux distributions should work - no tests have been performed on other OS.
 
@@ -63,8 +62,8 @@ BSD 3-Clause License
 ## Types
 
 
-The nim type of a Matrix is not generic - it does not depend on the type of the elements. 
-The type of the matrix elements can be checked with the `dtype` proc.
+The nim type of a AFArray is not generic - it does not depend on the type of the elements. 
+The type of the AFArray elements can be checked with the `dtype` proc.
 
 The `DType` enum contains all possible types.
 
@@ -76,85 +75,85 @@ To simplify cross platform application development two special values are define
 
 
 
-## Matrix construction 
+## AFArray construction 
 
 
-A Matrix can be constructed from an openarray, a slice, a matrix, a sequence or a constant value.
-The dimensions of the matrix can be defined vararg of integers (max 4)
+A AFArray can be constructed from an openarray, a slice, a AFArray, a sequence or a constant value.
+The dimensions of the AFArray can be defined vararg of integers (max 4)
 or as a Dim4 object.
-If the element type of the matrix is not defined, the nim type of the input (e.g. openarray)
+If the element type of the AFArray is not defined, the nim type of the input (e.g. openarray)
 will be used. On 64bit os systems literal int values will be translated to signed 64 float to float 64.
 
-Construction of a 1,2,3,4-D matrix from a sequence or slice without explicit type definition
+Construction of a 1,2,3,4-D AFArray from a sequence or slice without explicit type definition
 
 ```nim
-    # Matrix from a sequence, matrix type is int which maps to s64 (or s32 on 32 bit os)
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9])
+    # AFArray from a sequence, AFArray type is int which maps to s64 (or s32 on 32 bit os)
+    let m1d = afa(9,@[1,2,3,4,5,6,7,8,9])
     check(m1d.dtype == sysint)
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9])
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8])
+    let m2d = afa(3,3,@[1,2,3,4,5,6,7,8,9])
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8])
 
     let mydims=dim4(2,2,2,2)
-    let m4d = matrix(mydims,1..16)                 #use a Dim4 to specify dimensions
+    let m4d = afa(mydims,1..16)                 #use a Dim4 to specify dimensions
 ```
 
-Same with explicit matrix type
+Same with explicit AFArray type
 
 ```nim
-    let m1d = matrix(9,@[1,2,3,4,5,6,7,8,9],f64)    #float64 matrix
-    let m2d = matrix(3,3,@[1,2,3,4,5,6,7,8,9],f32)  #float32 matrix
-    let m3d = matrix(2,2,2,@[1,2,3,4,5,6,7,8],u64)  #usigned int 64 matrix
-    let m4d = matrix(2,2,2,2,1..16,c64)             #complex64 matrix
+    let m1d = afa(9,@[1,2,3,4,5,6,7,8,9],f64)    #float64 AFArray
+    let m2d = afa(3,3,@[1,2,3,4,5,6,7,8,9],f32)  #float32 AFArray
+    let m3d = afa(2,2,2,@[1,2,3,4,5,6,7,8],u64)  #usigned int 64 AFArray
+    let m4d = AFArray(2,2,2,2,1..16,c64)             #complex64 AFArray
 ```
 
 Construction from a constant value:
 
 ```nim
-    #3x3 Matrix with all elements 0, type f64 (float64)
+    #3x3 AFArray with all elements 0, type f64 (float64)
     let m0 = constant(0,3,3,f64)
 
-    #2x2 Matrix with all elements 1, type taken from literal(int) -> s64 on 64bit os else s32    
+    #2x2 AFArray with all elements 1, type taken from literal(int) -> s64 on 64bit os else s32    
     let m1 = constant(1,2,2)
 ```
 
 Construction from random values:
 
 ```nim
-    #3x3 Matrix with elements taken from a uniform distribution of type f64
+    #3x3 AFArray with elements taken from a uniform distribution of type f64
     let m0 = randu(3,3,f64)
-    #2x2 Matrix with elements taken from a normal distribution of type f32 (default)
+    #2x2 AFArray with elements taken from a normal distribution of type f32 (default)
     let m1 = randn(2,2)
 ```
 
 
-## Matrix properties
+## AFArray properties
 
 * `len`
-  Number of elements in a matrix
+  Number of elements in a AFArray
 
 * `dtype`
-  Type of the matrix elements
+  Type of the AFArray elements
 
 * `to_seq(typedesc)`
-  Get all elements of a matrix. 
+  Get all elements of a AFArray. 
   This proc takes a typedesc to define the target type, see the example below
 
 * `first_as(typedesc)`
-  Get the first element of a matrix
+  Get the first element of a AFArray
   This proc takes a typedesc to define the target type, see the example below
 
 * `dims`
-  Get a Dim4 object containing the matrix dimensions
+  Get a Dim4 object containing the AFArray dimensions
 
 * `ndims` 
-  Get the number of dimentsions of a matrix
+  Get the number of dimentsions of a AFArray
 
 
 
 
 ```nim
 
-    #3x3 Matrix with Complex64 elements, all set (10,0i)
+    #3x3 AFArray with Complex64 elements, all set (10,0i)
     let m0 = constant(10,3,3,c64) 
 
     #dtype c64 
@@ -176,20 +175,20 @@ Construction from random values:
     check(m0.first_as(float) == 10.0)
 ```
 
-## Matrix indexing
+## AFArray indexing
 
-Matrix indexing generates "views" of a matrix based on selection criteria.
-A `Matrix_View` can be assigned values and be used like a matrix enabling very concise constructs.
+AFArray indexing generates "views" of a AFArray based on selection criteria.
+A `AFArray_View` can be assigned values and be used like a AFArray enabling very concise constructs.
 The special constants `span` and `iend` are used to denote all elements / the last element 
 
 Negative index values count backwards from the last element (i.e. iend = -1)
 
 ```nim
-    #construct 3x3 Matrix with int32 values
+    #construct 3x3 AFArray with int32 values
     # 1 4 7
     # 2 5 8 
     # 3 6 9
-    var a = matrix(3,3, 1..9,s32)
+    var a = afa(3,3, 1..9,s32)
     #first element
     check(a[0].first_as(int) == 1 )
 
@@ -259,9 +258,9 @@ Iterations are performed in parallel by tiling the input.
     let siteI = @[2, 3, 0, 1, 1, 2, 0, 1, 2, 1]
     let measurementI = @[9, 5, 6, 3, 3, 8, 2, 6, 5, 10]
 
-    let day = matrix(n,dayI)
-    let site= matrix(n,siteI)
-    let measurement = matrix(n,measurementI)
+    let day = afa(n,dayI)
+    let site= afa(n,siteI)
+    let measurement = afa(n,measurementI)
 
     var rainfall = constant(0,sites)    
 

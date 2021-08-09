@@ -1,8 +1,17 @@
-version     = "0.1.0"
+version     = "0.2.1"
 author      = "bitstorm"
 description = "Arrayfire wrapper for nim"
 license     = "BSD"
 
-# Deps
+# Dependencies
 
-requires "nim >= 0.15.0"
+requires "nim >= 1.2.0"
+
+when defined(nimdistros):
+    import distros
+    if detectOs(ArchLinux):
+        foreignDep "arrayfire"
+
+
+task tests, "Run all Arrayfire-Nim tests":
+    exec "testament all"

@@ -1,7 +1,6 @@
 import unittest
 import strutils
 import ArrayFireNim
-import os
 
 
 suite "getting started":
@@ -12,8 +11,8 @@ suite "getting started":
     echo "\n== Matrix creation"
     let h_A = @[1, 2, 4, -1, 2, 0, 4, 2, 3]
     let h_B = @[2, 3, -5, 6, 0, 10, -12, 0, 1]
-    var A = matrix(3, 3, h_A);
-    var B = matrix(3, 3, h_B);
+    var A = afa(3, 3, h_A);
+    var B = afa(3, 3, h_B);
 
     echo $A
     print("A.col(0)",A.col(0))
@@ -66,8 +65,8 @@ suite "getting started":
 
     echo "\n-- Minimum along columns with index"
     echo $A
-    var idx = Matrix()
-    var mout = Matrix()
+    var idx = afa()
+    var mout = afa()
     min(mout,idx,A)
     print("OUT",mout)
     print("idx",idx)
@@ -79,8 +78,8 @@ suite "getting started":
     let h_spread = @[1'f32/5'f32, 1'f32/5'f32, 1'f32/5'f32, 1'f32/5'f32,]
 
     var img = randu(640,480)
-    var dx = matrix(5,1,h_dx)
-    var spread = matrix(1,5,h_spread)
+    var dx = afa(5,1,h_dx)
+    var spread = afa(1,5,h_spread)
 
     echo $dx
     echo $spread
@@ -113,11 +112,11 @@ suite "getting started":
     let siteI = @[2, 3, 0, 1, 1, 2, 0, 1, 2, 1]
     let measurementI = @[9, 5, 6, 3, 3, 8, 2, 6, 5, 10]
 
-    let day = matrix(n,dayI)
-    let site= matrix(n,siteI)
-    let measurement = matrix(n,measurementI)
+    let day = afa(n,dayI)
+    let site= afa(n,siteI)
+    let measurement = afa(n,measurementI)
 
-    var rainfall = constant(0,sites)    
+    var rainfall = constant(0,sites, ty=DType.s32)    
 
     gfor(s, sites):
       rainfall[s] = msum(measurement * ( site == s)  )
@@ -136,7 +135,7 @@ suite "getting started":
     echo "number of days with rain: " & $rainy_days
     check(rainy_days == 7)
 
-    var per_day = constant(0, days)
+    var per_day = constant(0, days, DType.f32)
 
     gfor(d, days):
       per_day[d] = msum(measurement * (day == d))
