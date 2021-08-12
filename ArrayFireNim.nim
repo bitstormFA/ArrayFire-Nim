@@ -4,6 +4,7 @@ import times
 import typetraits
 
 when defined(Windows): 
+  from os import nil 
   const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include") & "\""
   const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
   {.passC: "-D __FUNCSIG__ -std=c++11" & " -I " & AF_INCLUDE_PATH}
@@ -1492,6 +1493,25 @@ proc getBackendId*(matin : AFArray): Backend
 
 proc getActiveBackend*(): Backend 
   {.cdecl, importcpp: "af::getActiveBackend(@)",header : "arrayfire.h".}
+
+proc get_available_backends*() : seq[Backend] =
+  result = @[]
+  var bout = af_getAvailableBackends()
+  
+
+  for i in @[Backend.UNIFIED,Backend.CPU,Backend.CUDA,Backend.OPENCL] :
+    if (bout and i.ord) != 0:
+      result.add(i)  
+
+proc set_backend_preferred*(preferred:seq[Backend] = 
+  @[Backend.OPENCL, Backend.CUDA, Backend.CPU]) : Backend =
+  let backends=get_available_backends()
+
+  for b in preferred:    
+    if b in backends:
+      set_backend(b)
+      result=b
+      break
 
 proc getDeviceId*(matin : AFArray): cint 
   {.cdecl, importcpp: "af::getDeviceId(@)", header : "arrayfire.h".}
@@ -3192,26 +3212,6 @@ template window*(wvar : untyped, width : int, height : int, title : string) =
 template window*(wvar : untyped, title : string) =
   var wvar : Window
   wvar.setTitle(title)
-
-proc get_available_backends*() : seq[Backend] =
-  result = @[]
-  var bout = af_getAvailableBackends()
-  
-
-  for i in @[Backend.UNIFIED,Backend.CPU,Backend.CUDA,Backend.OPENCL] :
-    if (bout and i.ord) != 0:
-      result.add(i)  
-
-proc set_backend_preferred*(preferred:seq[Backend] = 
-  @[Backend.OPENCL, Backend.CUDA, Backend.CPU]) : Backend =
-  let backends=get_available_backends()
-
-  for b in preferred:    
-    if b in backends:
-      set_backend(b)
-      result=b
-      break
-
 
 proc to_seq_typed[S,T](a : AFArray, count: int, s: typedesc[S], t: typedesc[T] ) : seq[T] =
   result=newSeq[T]()
