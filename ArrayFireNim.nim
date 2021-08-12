@@ -2,10 +2,13 @@ import strutils
 import tables
 import times
 import typetraits
+from os import nil 
 
-when defined(Windows): #check this
-  {.passC: "-std=c++11".}
-  {.passL: "-lGL -laf"}
+when defined(Windows): 
+  const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include") & "\""
+  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
+  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I " & AF_INCLUDE_PATH}
+  {.passL: "-lopengl32 -laf" & " -L " & AF_LIB_PATH}
 elif defined(Linux):
   {.passC: "-std=c++11".}
   {.passL: "-lGL -laf"}
@@ -295,6 +298,7 @@ The test directory contains unit tests which have been translated from the c++ e
   ArrayFire-Nim is not affiliated with or endorsed by ArrayFire. The ArrayFire literal 
   mark is used under a limited license granted by ArrayFire the trademark holder 
   in the United States and other countries.
+
 ]##
 
 type
@@ -821,11 +825,13 @@ proc `+=`*(this: var AFArray; val: bool)
 proc `+=`*(this: var AFArray; val: char) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var AFArray; val: clong) 
-  {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `+=`*(this: var AFArray; val: clong) 
+    {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
-proc `+=`*(this: var AFArray; val: culong) 
-  {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `+=`*(this: var AFArray; val: culong) 
+    {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
 
 proc `+=`*(this: var AFArray; val: clonglong) 
   {.cdecl, importcpp: "(# += #)", header : "arrayfire.h".}
@@ -840,8 +846,10 @@ proc `-=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# -= #)", header 
 proc `-=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
 proc `-=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
 proc `-=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
-proc `-=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `-=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `-=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# -= #)", header : "arrayfire.h".}
 proc `-=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
 proc `-=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# -= #)",header : "arrayfire.h".}
 proc `*=`*(this: var AFArray; val: AFArray) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
@@ -851,8 +859,10 @@ proc `*=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# *= #)", header 
 proc `*=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
 proc `*=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
 proc `*=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
-proc `*=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `*=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `*=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# *= #)", header : "arrayfire.h".}
 proc `*=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
 proc `*=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# *= #)",header : "arrayfire.h".}
 proc `/=`*(this: var AFArray; val: AFArray) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
@@ -862,8 +872,10 @@ proc `/=`*(this: var AFArray; val: cint) {.cdecl, importcpp: "(# /= #)", header 
 proc `/=`*(this: var AFArray; val: cuint) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
 proc `/=`*(this: var AFArray; val: bool) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
 proc `/=`*(this: var AFArray; val: char) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
-proc `/=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `/=`*(this: var AFArray; val: clong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `/=`*(this: var AFArray; val: culong) {.cdecl, importcpp: "(# /= #)", header : "arrayfire.h".}
 proc `/=`*(this: var AFArray; val: clonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
 proc `/=`*(this: var AFArray; val: culonglong) {.cdecl, importcpp: "(# /= #)",header : "arrayfire.h".}
 proc `-`*(this: AFArray): AFArray {.noSideEffect, cdecl, importcpp: "(- #)", header : "arrayfire.h".}
@@ -876,8 +888,10 @@ proc `+`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", heade
 proc `+`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `+`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `+`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
 proc `+`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
 proc `+`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
@@ -886,8 +900,10 @@ proc `+`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# + #)", heade
 proc `+`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
-proc `+`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `+`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `+`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
 proc `+`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
 proc `+`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# + #)",header : "arrayfire.h".}
 proc `+`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# + #)", header : "arrayfire.h".}
@@ -897,8 +913,10 @@ proc `-`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", heade
 proc `-`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `-`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `-`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
 proc `-`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
 proc `-`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
@@ -907,8 +925,10 @@ proc `-`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# - #)", heade
 proc `-`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
-proc `-`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `-`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `-`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
 proc `-`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
 proc `-`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# - #)",header : "arrayfire.h".}
 proc `-`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# - #)", header : "arrayfire.h".}
@@ -918,8 +938,10 @@ proc `*`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", heade
 proc `*`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `*`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `*`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
 proc `*`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
 proc `*`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
@@ -928,8 +950,10 @@ proc `*`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# * #)", heade
 proc `*`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
-proc `*`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `*`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `*`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
 proc `*`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
 proc `*`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# * #)",header : "arrayfire.h".}
 proc `*`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# * #)", header : "arrayfire.h".}
@@ -939,8 +963,10 @@ proc `/`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", heade
 proc `/`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `/`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `/`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
 proc `/`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
 proc `/`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
@@ -949,8 +975,10 @@ proc `/`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# / #)", heade
 proc `/`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
-proc `/`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `/`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `/`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
 proc `/`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
 proc `/`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# / #)",header : "arrayfire.h".}
 proc `/`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# / #)", header : "arrayfire.h".}
@@ -960,8 +988,10 @@ proc `==`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", hea
 proc `==`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
 proc `==`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
 proc `==`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `==`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `==`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
@@ -970,8 +1000,10 @@ proc `==`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# == #)", hea
 proc `==`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
 proc `==`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
 proc `==`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
-proc `==`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `==`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# == #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `==`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
 proc `==`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# == #)",header : "arrayfire.h".}
@@ -981,8 +1013,10 @@ proc `<`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", heade
 proc `<`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
 proc `<`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
 proc `<`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
@@ -991,8 +1025,10 @@ proc `<`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# < #)", heade
 proc `<`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
-proc `<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
 proc `<`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
 proc `<`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# < #)",header : "arrayfire.h".}
 proc `<`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# < #)", header : "arrayfire.h".}
@@ -1002,8 +1038,10 @@ proc `<=`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", hea
 proc `<=`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
 proc `<=`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
 proc `<=`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `<=`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<=`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
@@ -1012,8 +1050,10 @@ proc `<=`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# <= #)", hea
 proc `<=`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
 proc `<=`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
 proc `<=`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
-proc `<=`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `<=`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# <= #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<=`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
 proc `<=`*(lhs: AFArray; rhs: cdouble): AFArray {.cdecl, importcpp: "(# <= #)",header : "arrayfire.h".}
@@ -1023,8 +1063,10 @@ proc `&&`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", hea
 proc `&&`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
 proc `&&`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
 proc `&&`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `&&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `&&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
 proc `&&`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
 proc `&&`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
 proc `&&`*(lhs: cdouble; rhs: AFArray): AFArray {.cdecl, importcpp: "(# && #)",header : "arrayfire.h".}
@@ -1033,8 +1075,10 @@ proc `&&`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# && #)", hea
 proc `&&`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
 proc `&&`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
 proc `&&`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
-proc `&&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# && #)",
+when sizeof(clong) != sizeof(cint):
+  proc `&&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# && #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `&&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
 proc `&&`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# && #)",
     header : "arrayfire.h".}
@@ -1050,8 +1094,10 @@ proc `||`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", hea
 proc `||`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
 proc `||`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
 proc `||`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
+when sizeof(clong) != sizeof(cint):
+  proc `||`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `||`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
 proc `||`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
@@ -1065,8 +1111,10 @@ proc `||`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# || #)", hea
 proc `||`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
 proc `||`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
 proc `||`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
-proc `||`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# || #)",
+when sizeof(clong) != sizeof(cint):
+  proc `||`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# || #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `||`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
 proc `||`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# || #)",
     header : "arrayfire.h".}
@@ -1081,8 +1129,10 @@ proc `%`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", heade
 proc `%`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `%`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `%`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
 proc `%`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# % #)",
@@ -1093,8 +1143,10 @@ proc `%`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# % #)", heade
 proc `%`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
-proc `%`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `%`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `%`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# % #)", header : "arrayfire.h".}
 proc `%`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# % #)",
     header : "arrayfire.h".}
 proc `%`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# % #)",
@@ -1106,8 +1158,10 @@ proc `&`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", heade
 proc `&`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `&`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `&`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
 proc `&`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# & #)",
@@ -1118,8 +1172,10 @@ proc `&`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# & #)", heade
 proc `&`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
-proc `&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `&`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `&`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# & #)", header : "arrayfire.h".}
 proc `&`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# & #)",
     header : "arrayfire.h".}
 proc `&`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# & #)",
@@ -1131,8 +1187,10 @@ proc `|`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", heade
 proc `|`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `|`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `|`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
 proc `|`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# | #)",
@@ -1143,8 +1201,10 @@ proc `|`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# | #)", heade
 proc `|`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
-proc `|`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `|`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `|`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# | #)", header : "arrayfire.h".}
 proc `|`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# | #)",
     header : "arrayfire.h".}
 proc `|`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# | #)",
@@ -1156,8 +1216,10 @@ proc `^`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", heade
 proc `^`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `^`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `^`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
 proc `^`*(lhs: culonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# ^ #)",
@@ -1168,8 +1230,10 @@ proc `^`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# ^ #)", heade
 proc `^`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
-proc `^`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc `^`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `^`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# ^ #)", header : "arrayfire.h".}
 proc `^`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# ^ #)",
     header : "arrayfire.h".}
 proc `^`*(lhs: AFArray; rhs: culonglong): AFArray {.cdecl, importcpp: "(# ^ #)",
@@ -1182,8 +1246,10 @@ proc `<<`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", hea
 proc `<<`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
 proc `<<`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
 proc `<<`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
+when sizeof(clong) != sizeof(cint):
+  proc `<<`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<<`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
 proc `<<`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
@@ -1197,8 +1263,10 @@ proc `<<`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# << #)", hea
 proc `<<`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
 proc `<<`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
 proc `<<`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
-proc `<<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# << #)",
+when sizeof(clong) != sizeof(cint):
+  proc `<<`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# << #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `<<`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
 proc `<<`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# << #)",
     header : "arrayfire.h".}
@@ -1214,8 +1282,10 @@ proc `>>`*(lhs: bool; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", hea
 proc `>>`*(lhs: cint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
 proc `>>`*(lhs: cuint; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
 proc `>>`*(lhs: char; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
+when sizeof(clong) != sizeof(cint):
+  proc `>>`*(lhs: clong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `>>`*(lhs: culong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
 proc `>>`*(lhs: clonglong; rhs: AFArray): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
@@ -1229,8 +1299,10 @@ proc `>>`*(lhs: AFArray; rhs: bool): AFArray {.cdecl, importcpp: "(# >> #)", hea
 proc `>>`*(lhs: AFArray; rhs: cint): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
 proc `>>`*(lhs: AFArray; rhs: cuint): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
 proc `>>`*(lhs: AFArray; rhs: char): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
-proc `>>`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# >> #)",
+when sizeof(clong) != sizeof(cint):
+  proc `>>`*(lhs: AFArray; rhs: clong): AFArray {.cdecl, importcpp: "(# >> #)", header : "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc `>>`*(lhs: AFArray; rhs: culong): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
 proc `>>`*(lhs: AFArray; rhs: clonglong): AFArray {.cdecl, importcpp: "(# >> #)",
     header : "arrayfire.h".}
@@ -2516,8 +2588,10 @@ proc assign*(this: var AFArray_View; a: cint) {.importcpp: "#.operator=(@)",head
 proc assign*(this: var AFArray_View; a: cuint) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 proc assign*(this: var AFArray_View; a: bool) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 proc assign*(this: var AFArray_View; a: char) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var AFArray_View; a: clong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
-proc assign*(this: var AFArray_View; a: culong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+when sizeof(clong) != sizeof(cint):
+  proc assign*(this: var AFArray_View; a: clong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
+when sizeof(culong) != sizeof(cuint):
+  proc assign*(this: var AFArray_View; a: culong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 proc assign*(this: var AFArray_View; a: clonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 proc assign*(this: var AFArray_View; a: culonglong) {.importcpp: "#.operator=(@)",header: "arrayfire.h".}
 
@@ -2543,10 +2617,12 @@ proc `+=`*(this: var AFArray_View; a: bool)
 proc `+=`*(this: var AFArray_View; a: char) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var AFArray_View; a: clong) 
+when sizeof(clong) != sizeof(cint):
+  proc `+=`*(this: var AFArray_View; a: clong) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
-proc `+=`*(this: var AFArray_View; a: culong) 
+when sizeof(culong) != sizeof(cuint):
+  proc `+=`*(this: var AFArray_View; a: culong) 
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
 proc `+=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# += #)",
@@ -2567,9 +2643,11 @@ proc `-=`*(this: var AFArray_View; a: bool) {.importcpp: "(# -= #)",
                                        header: "arrayfire.h".}
 proc `-=`*(this: var AFArray_View; a: char) {.importcpp: "(# -= #)",
                                        header: "arrayfire.h".}
-proc `-=`*(this: var AFArray_View; a: clong) {.importcpp: "(# -= #)",
+when sizeof(clong) != sizeof(cint):
+  proc `-=`*(this: var AFArray_View; a: clong) {.importcpp: "(# -= #)",
                                         header: "arrayfire.h".}
-proc `-=`*(this: var AFArray_View; a: culong) {.importcpp: "(# -= #)",
+when sizeof(culong) != sizeof(cuint):
+  proc `-=`*(this: var AFArray_View; a: culong) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
 proc `-=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# -= #)",
     header: "arrayfire.h".}
@@ -2589,9 +2667,11 @@ proc `*=`*(this: var AFArray_View; a: bool) {.importcpp: "(# *= #)",
                                        header: "arrayfire.h".}
 proc `*=`*(this: var AFArray_View; a: char) {.importcpp: "(# *= #)",
                                        header: "arrayfire.h".}
-proc `*=`*(this: var AFArray_View; a: clong) {.importcpp: "(# *= #)",
+when sizeof(clong) != sizeof(cint):
+  proc `*=`*(this: var AFArray_View; a: clong) {.importcpp: "(# *= #)",
                                         header: "arrayfire.h".}
-proc `*=`*(this: var AFArray_View; a: culong) {.importcpp: "(# *= #)",
+when sizeof(culong) != sizeof(cuint):
+  proc `*=`*(this: var AFArray_View; a: culong) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
 proc `*=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# *= #)",
     header: "arrayfire.h".}
@@ -2611,9 +2691,11 @@ proc `/=`*(this: var AFArray_View; a: bool) {.importcpp: "(# /= #)",
                                        header: "arrayfire.h".}
 proc `/=`*(this: var AFArray_View; a: char) {.importcpp: "(# /= #)",
                                        header: "arrayfire.h".}
-proc `/=`*(this: var AFArray_View; a: clong) {.importcpp: "(# /= #)",
+when sizeof(clong) != sizeof(cint):
+  proc `/=`*(this: var AFArray_View; a: clong) {.importcpp: "(# /= #)",
                                         header: "arrayfire.h".}
-proc `/=`*(this: var AFArray_View; a: culong) {.importcpp: "(# /= #)",
+when sizeof(culong) != sizeof(cuint):
+  proc `/=`*(this: var AFArray_View; a: culong) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
 proc `/=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# /= #)",
     header: "arrayfire.h".}
@@ -2878,7 +2960,8 @@ converter toCuint*(d: DimT) : cuint = cuint(d)
 
 converter toInt*(i: cint) : int = int(i)
 
-converter toInt*(i: clong) : int = int(i)
+when sizeof(clong) != sizeof(cint):
+  converter toInt*(i: clong) : int = int(i)
 
 proc copy_array_to_c[T](data:openarray[T]) : pointer =  
   doAssert len(data) > 0 
