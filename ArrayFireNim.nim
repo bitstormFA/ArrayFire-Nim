@@ -2,7 +2,6 @@ import strutils
 import tables
 import times
 import typetraits
-from os import nil 
 
 when defined(Windows): 
   const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include") & "\""
@@ -2618,12 +2617,10 @@ proc `+=`*(this: var AFArray_View; a: char)
   {.importcpp: "(# += #)",header: "arrayfire.h".}
 
 when sizeof(clong) != sizeof(cint):
-  proc `+=`*(this: var AFArray_View; a: clong) 
-  {.importcpp: "(# += #)",header: "arrayfire.h".}
+  proc `+=`*(this: var AFArray_View; a: clong) {.importcpp: "(# += #)",header: "arrayfire.h".}
 
 when sizeof(culong) != sizeof(cuint):
-  proc `+=`*(this: var AFArray_View; a: culong) 
-  {.importcpp: "(# += #)",header: "arrayfire.h".}
+  proc `+=`*(this: var AFArray_View; a: culong) {.importcpp: "(# += #)",header: "arrayfire.h".}
 
 proc `+=`*(this: var AFArray_View; a: clonglong) {.importcpp: "(# += #)",
     header: "arrayfire.h".}
