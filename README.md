@@ -2,7 +2,7 @@
 
 ArrayFireNim is a [Nim](http://www.nim-lang.org) wrapper for [Arrayfire](https://github.com/arrayfire/arrayfire).
 
-It enables *very fast* AFArray operations on different backends (CPU, OpenCL, CUDA) 
+It enables *very fast* Array operations on different backends (CPU, OpenCL, CUDA) 
 
 Compilation requires the C++ backend of nim (compile with cpp option)
 
