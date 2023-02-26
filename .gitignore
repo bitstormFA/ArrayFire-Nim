@@ -1,17 +1,17 @@
-nimcache/
-target/
-processed/
-include/
-.vscode/
-*.swp
-*.ndb
-*.log
-nakefile
+.idea
+.vscode
+src/generate/arrayfire.json
+bin/
 
+# ignore files with no extention:
+*
+!*/
+!*.*
 
-tests/benchmark_test
-tests/computer_vision_test
-tests/getting_started_test
-tests/graphics_test
-tests/lin_algebra_test
-tests/megatest
+# normal ignores:
+*.exe
+nimcache
+*.pdb
+*.ilk
+*.dll
+tmp/
