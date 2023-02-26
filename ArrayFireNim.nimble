@@ -1,17 +1,13 @@
-version     = "0.2.3"
-author      = "bitstorm"
-description = "Arrayfire wrapper for nim"
-license     = "BSD"
+# Package
+
+version       = "0.3.0"
+author        = "bitstorm"
+description   = "Nim wrapper for ArrayFire"
+license       = "BSD-3-Clause"
+srcDir        = "src"
+backend       = "cpp"
+
 
 # Dependencies
 
-requires "nim >= 1.2.0"
-
-when defined(nimdistros):
-    import distros
-    if detectOs(ArchLinux):
-        foreignDep "arrayfire"
-
-
-task tests, "Run all Arrayfire-Nim tests":
-    exec "testament all"
+requires "nim >= 1.6.10"
