@@ -5,7 +5,7 @@ import typetraits
 import std/sequtils
 import std/algorithm
 import std/math
-include ArrayFire_Nim/raw
+include raw
 
 
 when sizeof(int) == 8:

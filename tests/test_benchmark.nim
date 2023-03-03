@@ -1,4 +1,4 @@
-import ArrayFire_Nim
+import ArrayFireNim
 import unittest
 import strutils
 import strformat

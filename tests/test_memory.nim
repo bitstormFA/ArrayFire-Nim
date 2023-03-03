@@ -1,4 +1,4 @@
-import ArrayFire_Nim
+import ArrayFireNim
 # this is meant to be run with valgrind
 
 proc alloc_and_assign() =

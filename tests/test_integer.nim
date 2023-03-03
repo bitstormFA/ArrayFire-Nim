@@ -1,4 +1,4 @@
-import ArrayFire_Nim
+import ArrayFireNim
 import unittest
 
 test "basic logic and bitwise operations":
