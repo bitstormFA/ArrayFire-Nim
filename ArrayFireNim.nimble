@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.0"
+version       = "0.3.1"
 author        = "bitstorm"
 description   = "Nim wrapper for ArrayFire"
 license       = "BSD-3-Clause"
