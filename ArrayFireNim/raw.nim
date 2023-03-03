@@ -1,15 +1,18 @@
 when defined(Windows): 
   from os import nil 
-  const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include") & "\""
-  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
-  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I " & AF_INCLUDE_PATH}
-  {.passL: "-lopengl32 -laf" & " -L " & AF_LIB_PATH}
+  const AF_INCLUDE_PATH = os.joinPath(os.getEnv("AF_PATH"), "include") 
+  const AF_LIB_PATH =  os.joinPath(os.getEnv("AF_PATH"), "lib")
+  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I " & AF_INCLUDE_PATH.}
+  {.passL: "-lopengl32 -laf" & " -L " & AF_LIB_PATH.}
 elif defined(Linux):
   {.passC: "-std=c++11".}
-  {.passL: "-lGL -laf"}
+  {.passL: "-lGL -laf".}
 elif defined(MacOsX):
-  {.passC: "-std=c++11".}
-  {.passL: "-laf"}
+  from os import nil
+  const AF_INCLUDE_PATH = os.joinPath(os.getEnv("AF_PATH"), "include")
+  const AF_LIB_PATH = os.joinPath(os.getEnv("AF_PATH"), "lib")
+  {.passC: "-std=c++11" & " -I " & AF_INCLUDE_PATH.}
+  {.passL: "-laf" & " -L " & AF_LIB_PATH.}
 when sizeof(int) == 8:
   type DimT* = clonglong
 else:
