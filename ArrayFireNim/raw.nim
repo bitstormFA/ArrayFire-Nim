@@ -437,18 +437,6 @@ proc exampleFunction*( af_in : AFArray, param : SomeenumT ) : AFArray {.importcp
 proc getSizeOf*( af_type : Dtype ) : uint32 {.importcpp: "af::getSizeOf(@)", header: "arrayfire.h".}
 proc real*( val : float64 ) : float32 {.importcpp: "af::real(@)", header: "arrayfire.h".}
 proc imag*( val : float64 ) : float32 {.importcpp: "af::imag(@)", header: "arrayfire.h".}
-proc `+`*(lhs : float32, rhs : float64) : float32 {.importcpp: "(# + #)", header: "arrayfire.h".}
-proc `+`*(lhs : float64, rhs : float64) : float64 {.importcpp: "(# + #)", header: "arrayfire.h".}
-proc `/`*(lhs : float32, rhs : float64) : float32 {.importcpp: "(# / #)", header: "arrayfire.h".}
-proc `/`*(lhs : float64, rhs : float64) : float64 {.importcpp: "(# / #)", header: "arrayfire.h".}
-proc `-`*(lhs : float32, rhs : float64) : float32 {.importcpp: "(# - #)", header: "arrayfire.h".}
-proc `-`*(lhs : float64, rhs : float64) : float64 {.importcpp: "(# - #)", header: "arrayfire.h".}
-proc `*`*(lhs : float32, rhs : float64) : float32 {.importcpp: "(# * #)", header: "arrayfire.h".}
-proc `*`*(lhs : float64, rhs : float64) : float64 {.importcpp: "(# * #)", header: "arrayfire.h".}
-proc `+`*(rhs : float64, lhs : float32) : float32 {.importcpp: "(# + #)", header: "arrayfire.h".}
-proc `-`*(rhs : float64, lhs : float32) : float32 {.importcpp: "(# - #)", header: "arrayfire.h".}
-proc `*`*(rhs : float64, lhs : float32) : float32 {.importcpp: "(# * #)", header: "arrayfire.h".}
-proc `/`*(rhs : float64, lhs : float32) : float32 {.importcpp: "(# / #)", header: "arrayfire.h".}
 proc abs*( val : float32 ) : float32 {.importcpp: "af::abs(@)", header: "arrayfire.h".}
 proc abs*( val : float64 ) : float64 {.importcpp: "af::abs(@)", header: "arrayfire.h".}
 proc conj*( val : float32 ) : float32 {.importcpp: "af::conj(@)", header: "arrayfire.h".}
@@ -1053,9 +1041,11 @@ proc af_seq*( begin : float64, af_end : float64, step : float64 ) : AF_Seq {.con
 proc af_seq*( other : AF_Seq, is_gfor : bool ) : AF_Seq {.constructor, importcpp: "af::seq(@)", header: "arrayfire.h".}
 proc af_seq*( s : AF_Seq ) : AF_Seq {.constructor, importcpp: "af::seq(@)", header: "arrayfire.h".}
 proc `assign`*(this : AF_Seq, s : AF_Seq)  {.importcpp: "(# = #)", header: "arrayfire.h".}
+proc `-`*(this : AF_Seq) : AF_Seq {.importcpp: "(# - #)", header: "arrayfire.h".}
 proc `+`*(this : AF_Seq, x : float64) : AF_Seq {.importcpp: "(# + #)", header: "arrayfire.h".}
 proc `-`*(this : AF_Seq, x : float64) : AF_Seq {.importcpp: "(# - #)", header: "arrayfire.h".}
 proc `*`*(this : AF_Seq, x : float64) : AF_Seq {.importcpp: "(# * #)", header: "arrayfire.h".}
+proc `afa`*(this : AF_Seq) : AFArray {.importcpp: "(# afa #)", header: "arrayfire.h".}
 proc init*( this : AF_Seq, begin : float64, af_end : float64, step : float64 )  {.importcpp: "init", header : "arrayfire.h".}
 proc af_seq*( p : AF_Seq ) : AF_Seq {.constructor, importcpp: "af::seq(@)", header: "arrayfire.h".}
 proc dim4*(  ) : Dim4 {.constructor, importcpp: "af::dim4(@)", header: "arrayfire.h".}
@@ -1196,6 +1186,9 @@ proc `/=`*(this : AFArray, val : int64)  {.importcpp: "(# /= #)", header: "array
 proc `/=`*(this : AFArray, val : uint64)  {.importcpp: "(# /= #)", header: "arrayfire.h".}
 proc `/=`*(this : AFArray, val : int16)  {.importcpp: "(# /= #)", header: "arrayfire.h".}
 proc `/=`*(this : AFArray, val : uint16)  {.importcpp: "(# /= #)", header: "arrayfire.h".}
+proc `-`*(this : AFArray) : AFArray {.importcpp: "(# - #)", header: "arrayfire.h".}
+proc `!`*(this : AFArray) : AFArray {.importcpp: "(# ! #)", header: "arrayfire.h".}
+proc `~`*(this : AFArray) : AFArray {.importcpp: "(# ~ #)", header: "arrayfire.h".}
 proc nonzeros*( this : AFArray ) : int32 {.importcpp: "nonzeros", header : "arrayfire.h".}
 proc lock*( this : AFArray )  {.importcpp: "lock", header : "arrayfire.h".}
 proc isLocked*( this : AFArray ) : bool {.importcpp: "isLocked", header : "arrayfire.h".}

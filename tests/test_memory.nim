@@ -6,8 +6,8 @@ proc alloc_and_assign() =
     let view = a[aseq(0, 200), aseq(200,300)]
     var v2 = view * view 
     v2 *= cdouble(1.5)
-    a += 2
-    let b = a * 2
+    a += 2i32
+    let b = a * 2i32
     let c = b + a 
     c.eval()
 

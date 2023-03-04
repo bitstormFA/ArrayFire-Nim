@@ -9,7 +9,7 @@ test "fast":
     var img_color = loadImage("assets/man.jpg", true)
     let img = colorSpace(img_color, CspaceT.AF_GRAY, CSpaceT.AF_RGB)
 
-    img_color /= 255
+    img_color /= 255i16
 
     let feat = fast(img, 20.0, 9, true, 0.05, 3)
 
@@ -52,7 +52,7 @@ test "harris":
     var img_color = loadImage("assets/man.jpg", true)
     let img = colorSpace(img_color, CSpaceT.AF_GRAY, CSpaceT.AF_RGB)
 
-    img_color /= 255.0
+    img_color /= 255.0f32
 
     var (ix, iy) = img.grad()
 

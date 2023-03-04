@@ -275,12 +275,14 @@ proc render_parameters(ps: seq[Parameter]): string =
     result = if len(p_strings) > 0: p_strings.join(", ") else: ""
 
 proc is_simple_parameter(n: string): bool = 
-    if n.startsWith("int") or n.startsWith("float"):
+    if n.startsWith(":"):
+        result = true
+    elif n.startsWith("int") or n.startsWith("float") or n.startsWith("long") or n.startsWith("double"):
         result = true
     else:
         result = false
 
-proc skip_function(f: Function): bool =
+proc skip_function(f: Function, skip_simple:bool = true): bool =
     result = false
     if f.name in skip_functions:
         return true
@@ -289,7 +291,8 @@ proc skip_function(f: Function): bool =
         if not is_simple_parameter(p.ctype.name):
             all_c_types = false
             break
-    if all_c_types and f.name.startsWith("operator"):
+    if all_c_types and f.name.startsWith("operator") and skip_simple:
+        print(f)
         return true
     for p in f.parameters:
         if p.ctype.name.toLowerAscii == "istream" or
@@ -331,7 +334,7 @@ proc render_class_methods(c: ClassDef): seq[string] =
             ctype: this_ctype)
     var already_processed = newSeq[Function]()
     for m in c.methods:
-        if skip_function(m):
+        if skip_function(m, false):
             continue
         if m.name.startsWith("~"):
             result.add(render_destructor(c))

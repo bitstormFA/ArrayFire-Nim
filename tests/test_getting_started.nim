@@ -121,14 +121,14 @@ test "rainfall":
     echo "total rainfall for each site $1\n" % $rainfall.to_seq(int)
     check(rainfall.to_seq(int) == @[8, 22, 22, 5])
 
-    let is_between = (1 <= day) && (day <= 5)
+    let is_between = (1i32 <= day) && (day <= 5i32)
 
     var rain_between = sum_as_float(measurement * is_between)
 
     echo "rain between days: $1\n" % $rain_between
     check(rain_between == 20.0)
 
-    var rainy_days = sum_as_int(diff1(day, 0) > 0) + 1
+    var rainy_days = sum_as_int(diff1(day, 0) > 0i32) + 1
 
     echo "number of days with rain: " & $rainy_days
     check(rainy_days == 7)
@@ -142,6 +142,6 @@ test "rainfall":
     echo "total rainfall each day: $1 \n" % $per_day
     check(per_day.to_seq(int) == @[14, 6, 3, 0, 0, 11, 8, 5, 10])
 
-    let days_over_five = sum_as_int(per_day > 5)
+    let days_over_five = sum_as_int(per_day > 5i32)
     echo "number of days > 5: " & $days_over_five
     check(days_over_five == 5)
