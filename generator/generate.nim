@@ -5,7 +5,7 @@ import std/options
 import std/tables
 import std/strformat
 import std/algorithm
-import std/sets
+import std/sugar
 import print
 from std/re import nil
 
@@ -14,17 +14,29 @@ var type_rename = {"array": "AFArray", "dim_t": "DimT",
                    "ArrayProxy": "AFArray",
                    "cuchar": "cstring",
                    "exception": "AF_Exception",
-                   "seq": "AF_Seq", "af_cfloat": "cdouble",
-                   "af_cdouble": "cdouble", "cdouble": "cdouble",
-                   "af_someenum_t": "SomeenumT", "cfloat": "cdouble",
+                   "seq": "AF_Seq", 
+                   "af_cfloat": "cdouble",
+                   "af_cdouble": "float64", 
+                   "cdouble": "float64",
+                   "af_someenum_t": "SomeenumT", 
+                   "cfloat": "float32",
                    "af_seq": "AF_Seq", "index": "IndexT",
-                   ":int": "cint", ":unsigned-int": "cuint", ":char": "cstring",
+                   ":int": "int32",
+                    ":unsigned-int": "uint32", 
+                    ":char": "cstring",
                    ":unsigned-char": "cstring", 
-                   ":_Bool": "bool", ":long": "clong", "CSpace": "CSpaceT",
-                   ":unsigned-long": "culong", ":long-long": "clonglong",
-                   ":unsigned-long-long": "culonglong", ":double": "cdouble",
-                   ":float": "cdouble", ":short": "cshort", ":void": "pointer",
-                   ":unsigned-short": "cushort", "size_t": "csize_t",
+                   ":_Bool": "bool", 
+                   ":long": "int32",
+                   "CSpace": "CSpaceT",
+                   ":unsigned-long": "uint32", 
+                   ":long-long": "int64",
+                   ":unsigned-long-long": "uint64", 
+                   ":double": "float64",
+                   ":float": "float32", 
+                   ":short": "int16", 
+                   ":void": "pointer",
+                   ":unsigned-short": "uint16", 
+                   "size_t": "uint32",
                    "ptr": "pointer"}.toTable()
 
 const function_rename = {"mod": "af_mod", "alloc": "af_alloc", "var": "af_var", "block": "af_block", "=": "assign",
@@ -44,10 +56,7 @@ const parameter_rename = {"in": "af_in", "out": "af_out", "from": "af_from", "se
                           "end": "af_end", "type": "af_type", "s_": "s", "": "p",
                           "ptr": "af_ptr"}.toTable()
 
-const skip_signatures = @["operator==cdouble_cdouble", "operator/cdouble_cdouble", 
-                          "operator*cdouble_cdouble", "operator+cdouble_cdouble", 
-                          "operator-cdouble_cdouble", "operator!=cdouble_cdouble",
-                          "evalafarray"]
+const skip_signatures = @["evalafarray"]
 
 
 type
@@ -104,8 +113,6 @@ proc make_type_name(n: string): string =
         if elements[0] == "af":
             elements.delete(0)
         for e in elements:
-            if e == "cdouble":
-                echo "hit"
             let upperName = e[0].toUpperAscii() & e[1 .. ^1]
             result = result & upperName
     type_rename[n] = result
@@ -256,7 +263,6 @@ proc render_ctype(c: CType, is_return_type:bool = false): string =
     else:
         result =  tanslate_predefined_types(c.name)
 
-
 proc render_parameter(p: Parameter): string =
     let type_name = render_ctype(p.ctype)
     let parameter_name = parameter_rename.getOrDefault(p.name, p.name)
@@ -268,16 +274,26 @@ proc render_parameters(ps: seq[Parameter]): string =
         p_strings.add(render_parameter(p))
     result = if len(p_strings) > 0: p_strings.join(", ") else: ""
 
+proc is_simple_parameter(n: string): bool = 
+    if n.startsWith("int") or n.startsWith("float"):
+        result = true
+    else:
+        result = false
+
 proc skip_function(f: Function): bool =
     result = false
     if f.name in skip_functions:
         return true
+    var all_c_types = true
+    for p in f.parameters:
+        if not is_simple_parameter(p.ctype.name):
+            all_c_types = false
+            break
+    if all_c_types and f.name.startsWith("operator"):
+        return true
     for p in f.parameters:
         if p.ctype.name.toLowerAscii == "istream" or
                 p.ctype.name.toLowerAscii == "ostream":
-            result = true
-            break
-        if p.ctype.name.contains("invalid"):
             result = true
             break
 
@@ -361,23 +377,23 @@ proc generate(json_def_file: string, outfile_name: string) =
     outfile.write("""
 when defined(Windows): 
   from os import nil 
-  const AF_INCLUDE_PATH = os.joinPath(os.getEnv("AF_PATH"), "include") 
-  const AF_LIB_PATH =  os.joinPath(os.getEnv("AF_PATH"), "lib")
-  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I " & AF_INCLUDE_PATH.}
-  {.passL: "-lopengl32 -laf" & " -L " & AF_LIB_PATH.}
+  const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include")  & "\""
+  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
+  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I" & AF_INCLUDE_PATH.}
+  {.passL: "-lopengl32 -laf" & " -L" & AF_LIB_PATH.}
 elif defined(Linux):
   {.passC: "-std=c++11".}
   {.passL: "-lGL -laf".}
 elif defined(MacOsX):
   from os import nil
-  const AF_INCLUDE_PATH = os.joinPath(os.getEnv("AF_PATH"), "include")
-  const AF_LIB_PATH = os.joinPath(os.getEnv("AF_PATH"), "lib")
+  const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include") & "\""
+  const AF_LIB_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
   {.passC: "-std=c++11" & " -I " & AF_INCLUDE_PATH.}
-  {.passL: "-laf" & " -L " & AF_LIB_PATH.}
+  {.passL: "-laf" & " -L" & AF_LIB_PATH.}
 when sizeof(int) == 8:
   type DimT* = clonglong
 else:
-  type DimT* = cint 
+  type DimT* = cint  
 
 type
   AF_Array_Handle* = distinct pointer
@@ -427,4 +443,4 @@ type
     outfile.write("\n#endregion\n\n")
 
 
-generate("generator/arrayfire.json", "src/ArrayFire_Nim/raw.nim")
+generate("generator/arrayfire.json", "ArrayFireNim/raw.nim")
