@@ -8,9 +8,8 @@ Compilation requires the C++ backend of nim (compile with cpp option)
 
 The wrapper is using the unified backend making it is possible to switch backends at runtime.
 
-Currently this package is developed and tested on Arch Linux.
-
-On Windows the package is not working, any support to get it working on Windows or other platforms is highly welcome!
+Currently this package is developed and tested on Arch Linux and Windows 11.
+On windows compilation with vcc is required
 
 
 ## Please Note
@@ -18,4 +17,5 @@ On Windows the package is not working, any support to get it working on Windows 
   mark is used under a limited license granted by ArrayFire the trademark holder 
   in the United States and other countries.
 
-This is currently work in progress after a longer break, a new version will be released as soon as possible
+This is currently work in progress after a longer break. 
+The documentation will be updated soon.
