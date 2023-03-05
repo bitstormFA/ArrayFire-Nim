@@ -1,9 +1,9 @@
 when defined(Windows): 
   from os import nil 
   const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include")  & "\""
-  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
-  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I" & AF_INCLUDE_PATH.}
-  {.passL: "-lopengl32 -laf" & " -L" & AF_LIB_PATH.}
+  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib\\af.lib") & "\""
+  {.passC: "/GS /W3 /Zc:wchar_t /FS /Zi /Gm- /O2 /Ob2 /Zc:inline /fp:precise /external:W0 /D \"_MBCS\" /D \"WIN32\" /D \"_WINDOWS\" /D \"WIN32_LEAN_AND_MEAN\" /D \"VC_EXTRALEAN\" /D \"NOMINMAX\" " & " -I" & AF_INCLUDE_PATH.}
+  {.passL: "/DYNAMICBASE " & AF_LIB_PATH .}
 elif defined(Linux):
   {.passC: "-std=c++11".}
   {.passL: "-lGL -laf".}
@@ -431,8 +431,6 @@ proc saveArray*( key : cstring, arr : AFArray, filename : cstring, append : bool
 proc readArray*( filename : cstring, index : uint32 ) : AFArray {.importcpp: "af::readArray(@)", header: "arrayfire.h".}
 proc readArray*( filename : cstring, key : cstring ) : AFArray {.importcpp: "af::readArray(@)", header: "arrayfire.h".}
 proc readArrayCheck*( filename : cstring, key : cstring ) : int32 {.importcpp: "af::readArrayCheck(@)", header: "arrayfire.h".}
-proc toString*( output : cstring, exp : cstring, arr : AFArray, precision : int32, transpose : bool )  {.importcpp: "af::toString(@)", header: "arrayfire.h".}
-proc toString*( exp : cstring, arr : AFArray, precision : int32, transpose : bool ) : cstring {.importcpp: "af::toString(@)", header: "arrayfire.h".}
 proc exampleFunction*( af_in : AFArray, param : SomeenumT ) : AFArray {.importcpp: "af::exampleFunction(@)", header: "arrayfire.h".}
 proc getSizeOf*( af_type : Dtype ) : uint32 {.importcpp: "af::getSizeOf(@)", header: "arrayfire.h".}
 proc real*( val : float64 ) : float32 {.importcpp: "af::real(@)", header: "arrayfire.h".}

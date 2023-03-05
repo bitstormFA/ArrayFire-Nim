@@ -43,7 +43,7 @@ const function_rename = {"mod": "af_mod", "alloc": "af_alloc", "var": "af_var", 
                          "type": "dtype", "array": "af_array", "sum": "asum", "min": "amin", "max": "amax",
                          "seq": "af_seq", "as": "af_as", "Window": "make_window", "()": "call"}.toTable()
 
-const skip_functions = @["batchFunc", "timeit", "tile"]
+const skip_functions = @["batchFunc", "timeit", "tile", "toString"]
 
 const skip_enums: seq[string] = @[]
 
@@ -292,7 +292,6 @@ proc skip_function(f: Function, skip_simple:bool = true): bool =
             all_c_types = false
             break
     if all_c_types and f.name.startsWith("operator") and skip_simple:
-        print(f)
         return true
     for p in f.parameters:
         if p.ctype.name.toLowerAscii == "istream" or
@@ -381,9 +380,9 @@ proc generate(json_def_file: string, outfile_name: string) =
 when defined(Windows): 
   from os import nil 
   const AF_INCLUDE_PATH = "\"" & os.joinPath(os.getEnv("AF_PATH"), "include")  & "\""
-  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib") & "\""
-  {.passC: "-D __FUNCSIG__ -std=c++11" & " -I" & AF_INCLUDE_PATH.}
-  {.passL: "-lopengl32 -laf" & " -L" & AF_LIB_PATH.}
+  const AF_LIB_PATH =  "\"" & os.joinPath(os.getEnv("AF_PATH"), "lib\\af.lib") & "\""
+  {.passC: "/GS /W3 /Zc:wchar_t /FS /Zi /Gm- /O2 /Ob2 /Zc:inline /fp:precise /external:W0 /D \"_MBCS\" /D \"WIN32\" /D \"_WINDOWS\" /D \"WIN32_LEAN_AND_MEAN\" /D \"VC_EXTRALEAN\" /D \"NOMINMAX\" " & " -I" & AF_INCLUDE_PATH.}
+  {.passL: "/DYNAMICBASE " & AF_LIB_PATH .}
 elif defined(Linux):
   {.passC: "-std=c++11".}
   {.passL: "-lGL -laf".}

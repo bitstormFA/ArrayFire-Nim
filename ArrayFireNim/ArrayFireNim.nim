@@ -81,10 +81,16 @@ proc `$`*(d: Dim4): string =
       elems.add(DimT(d[i]))
    "Dim4[$1]"%join(elems, ", ")
 
+type
+  cstringConstImpl {.importcpp:"const char*".} = cstring
+  constChar* = distinct cstringConstImpl
+
+proc af_toString*( exp : cstring, arr : AFArray, precision : int32, transpose : bool ) : constChar {.importcpp: "af::toString(@)", header: "arrayfire.h".}
+
 proc toString*(a: AFArray; exp: string; precision: cint = 4; transpose: bool = true): string =
-   let cexp = cstring(exp)
-   let cresult = toString(cexp, a, precision, transpose)
-   result = $(cresult)
+   let cexp = exp.cstring
+   let cresult = cast[cstring](af_toString(cexp, a, precision, transpose))
+   result = $cresult
 
 proc `$`*(a: AFArray): string = toString(a, "")
 
